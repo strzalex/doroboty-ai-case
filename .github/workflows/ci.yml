@@ -23,6 +23,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run check
       - run: npm run db:check
+      - run: npm run case:packet -- baseline && npm run case:verify-packet -- baseline
+      - run: npm run case:packet -- discovery && npm run case:verify-packet -- discovery
       - run: npm run test:lighthouse
       - run: npm run security:check
       - run: npm audit --omit=dev --audit-level=high

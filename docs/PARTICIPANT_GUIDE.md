@@ -32,6 +32,8 @@ If you do not maintain a local development environment, fork the prepared partic
 
 Participants must never fork the instructor repository directly. Before each stage, the instructor creates a new repository from a clean, history-free participant template, copies only the application code and evidence approved for that release, runs `npm run case:packet -- <release>` outside the participant repository, and adds only that packet. The participant forks this sanitized repository. Do not use a hidden branch, tag, source map, disabled route, or RLS alone to conceal later fixtures: all of those remain discoverable to someone with repository access. Rotate Supabase, PostHog, Vercel, and AI credentials between instructor and participant projects.
 
+After generating a packet, run `npm run case:verify-packet -- <release>`. The verifier checks the exact allowlist of files and columns, hashes against the manifest, credential-like values, and future release names. A passing verifier does not replace the clean-history repository step; application source still contains the instructor generator and must not be copied into the participant repository.
+
 ## Current context
 
 Read, in order:
