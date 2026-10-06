@@ -35,3 +35,12 @@ The callback supports PKCE code and token_hash. Only allowlisted local applicati
 ## Domain tables
 
 Before deployment, run `npx supabase db push --dry-run` against the intended project, review every migration, and test RLS with candidate, employer, other-organization, operator, and anonymous sessions. Never use `db reset` against a remote or production project.
+
+For an explicitly isolated rehearsal project, `npm run case:rehearsal-accounts` can create the
+synthetic role accounts without email delivery. It requires the exact project ref, matching project
+URL, a generated rehearsal password, a scoped `sb_secret_` key (or a verified legacy
+`service_role` key when Auth Admin does not accept the scoped key), and
+`CONFIRM_REMOTE_REHEARSAL=CREATE_SYNTHETIC_USERS_ONLY`. Supply these values only as process
+environment variables from a secret manager. The command is idempotent, uses reserved `.invalid`
+addresses, and never prints credentials. Never run it against a real-user or shared production
+project.

@@ -16,6 +16,7 @@
     "test:integration": "node scripts/integration.mjs",
     "test:lighthouse": "node scripts/lighthouse-check.mjs",
     "test:deployment": "node scripts/deployment-smoke.mjs",
+    "test:deployment:auth": "node scripts/authenticated-deployment-smoke.mjs",
     "security:check": "node scripts/security-check.mjs",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run test:e2e",
     "db:start": "supabase start",
@@ -26,6 +27,7 @@
     "case:export": "node scripts/case/export.ts",
     "case:red-team": "node scripts/case/red-team.ts",
     "case:accounts": "node scripts/case/create-test-accounts.ts",
+    "case:rehearsal-accounts": "node scripts/case/create-rehearsal-accounts.ts",
     "case:packet": "node scripts/case/participant-packet.ts",
     "case:verify-packet": "node scripts/case/verify-participant-packet.ts",
     "case:final-export": "node scripts/case/final-export.ts"

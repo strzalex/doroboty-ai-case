@@ -33,6 +33,18 @@ The gate checks the homepage, marketplace, representative job, sign-in page, rob
 and sitemap over HTTPS. Authenticated journeys still require an isolated Supabase project and
 must be verified separately with synthetic accounts.
 
+After creating synthetic rehearsal accounts, run the role smoke test with the password supplied
+from a secret manager rather than the shell history:
+
+```bash
+DEPLOYMENT_URL=https://doroboty-ai-case.vercel.app \
+  REHEARSAL_ACCOUNT_PASSWORD="$REHEARSAL_ACCOUNT_PASSWORD" \
+  npm run test:deployment:auth
+```
+
+The test uses isolated browser contexts for candidate, employer, and operator sessions, verifies
+their role-specific navigation, and never prints the password.
+
 Before collecting important data, configure Supabase backups and Vercel monitoring, verify restore on a non-production project, and record the active case release.
 
 ## Rollback
