@@ -159,7 +159,7 @@ invariants, and anti-spoiler rules are in
 - [x] **M3-10** Instrument application starts and submissions; derive abandonment rather
       than sending a browser “abandoned” event.
 - [x] **M3-11** Add idempotency and duplicate-submission protection.
-- [ ] **M3-12** Add E2E coverage for long form, one-click, employer review, and the first
+- [x] **M3-12** Add E2E coverage for long form, one-click, employer review, and the first
       conversation decision.
 
 ### M3 Definition of Done
@@ -209,7 +209,7 @@ invariants, and anti-spoiler rules are in
 ## M5 — Human-approved AI assistance and text-fit proxy
 
 - [x] **M5-01** Define a server-only AI provider interface and deterministic test provider.
-- [ ] **M5-02** Add secrets, quotas, timeouts, retry policy, structured logging, and safe
+- [x] **M5-02** Add secrets, quotas, timeouts, retry policy, structured logging, and safe
       failure behavior without exposing prompts or user content to browser logs.
 - [x] **M5-03** Create immutable `ai_generations` with purpose, provider/model metadata,
       source-version references, output, latency, cost metadata, and outcome status.
@@ -227,11 +227,11 @@ invariants, and anti-spoiler rules are in
       primary outcome remains flat.
 - [x] **M5-11** Include counterexamples and segments in which AI improves clarity or removes
       a language barrier without degrading decision quality.
-- [ ] **M5-12** Add model-output safety, authorization, provenance, cost, and failure tests.
+- [x] **M5-12** Add model-output safety, authorization, provenance, cost, and failure tests.
 
 ### M5 Definition of Done
 
-- [ ] Both AI tools are usable but require human approval.
+- [x] Both AI tools are usable but require human approval.
 - [x] Source truth, generated text, final text, and exposure can be compared independently.
 - [x] Employer and candidate interventions can be analyzed separately and together.
 - [x] Tests prove that AI use never directly changes a recruiting decision.
@@ -290,15 +290,15 @@ invariants, and anti-spoiler rules are in
       person.
 - [ ] **M7-09** Test the full fork → configure → build → deploy workflow from a clean GitHub
       account or isolated rehearsal organization.
-- [ ] **M7-10** Ensure release packets can be distributed without exposing later answers in
+- [x] **M7-10** Ensure release packets can be distributed without exposing later answers in
       git history, static assets, source maps, or database policies.
 
 ### M7 Definition of Done
 
 - [ ] A participant can fork, configure, deploy, log in, and share the product.
 - [ ] A real-person prototype test is feasible without instructor intervention.
-- [ ] Future case stages remain inaccessible until explicitly released.
-- [ ] The same guide works for a clean technical-path checkout.
+- [x] Future case stages remain inaccessible until explicitly released.
+- [x] The same guide works for a clean technical-path checkout.
 
 ---
 
@@ -328,20 +328,20 @@ invariants, and anti-spoiler rules are in
 - [x] The week-5 pilot is operationally and financially testable.
 - [x] Privacy, sponsorship, adoption, and cost are part of the decision rather than an
       appendix.
-- [ ] Demo Day can trace one coherent story from initial belief to the next experiment.
+- [x] Demo Day can trace one coherent story from initial belief to the next experiment.
 
 ---
 
 ## M9 — Security, accessibility, reliability, and course release
 
-- [ ] **M9-01** Run RLS integration tests across candidate, employer, other organization,
+- [x] **M9-01** Run RLS integration tests across candidate, employer, other organization,
       operator, anonymous, and expired sessions.
-- [ ] **M9-02** Test every mutation for authentication, authorization, Zod validation,
+- [x] **M9-02** Test every mutation for authentication, authorization, Zod validation,
       idempotency, and safe error messages.
-- [ ] **M9-03** Verify keyboard access, focus management, labels, errors, announcements,
+- [x] **M9-03** Verify keyboard access, focus management, labels, errors, announcements,
       reflow, and contrast on core candidate and employer flows.
-- [ ] **M9-04** Add Playwright coverage for all release-stage journeys and role boundaries.
-- [ ] **M9-05** Add AI timeout, quota, invalid output, provider outage, and cost-limit tests.
+- [x] **M9-04** Add Playwright coverage for all release-stage journeys and role boundaries.
+- [x] **M9-05** Add AI timeout, quota, invalid output, provider outage, and cost-limit tests.
 - [x] **M9-06** Add seed reset, partial failure, stale release, and fixture-integrity tests.
 - [ ] **M9-07** Verify analytics delivery in an isolated PostHog EU project and prove no PII
       appears in captured properties.
@@ -354,12 +354,12 @@ invariants, and anti-spoiler rules are in
 
 ### M9 Definition of Done
 
-- [ ] `./scripts/verify` and all integration/E2E suites pass from a clean clone.
-- [ ] No user can cross candidate or organization boundaries.
-- [ ] No production PII, credential, hidden reveal, or instructor-only fixture ships to a
+- [x] `./scripts/verify` and all integration/E2E suites pass from a clean clone.
+- [x] No user can cross candidate or organization boundaries.
+- [x] No production PII, credential, hidden reveal, or instructor-only fixture ships to a
       participant-visible surface.
-- [ ] Core flows meet WCAG AA and remain usable by keyboard.
-- [ ] The instructor can reset, release, observe, and recover the case without editing the
+- [x] Core flows meet WCAG AA and remain usable by keyboard.
+- [x] The instructor can reset, release, observe, and recover the case without editing the
       database manually.
 - [ ] A complete rehearsal produces the intended evidence without forcing one prescribed
       participant solution.
@@ -387,5 +387,5 @@ invariants, and anti-spoiler rules are in
 - [x] Every weekly result maps to the canonical AIPH3 program.
 - [ ] Participants can deploy a working authenticated prototype and test it with a real
       person.
-- [ ] Instructors can stage, validate, reset, and recover the case reproducibly.
+- [x] Instructors can stage, validate, reset, and recover the case reproducibly.
 - [x] The final prototype and evidence can support a coherent Demo Day pitch.
