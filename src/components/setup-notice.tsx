@@ -7,29 +7,29 @@ export function SetupNotice() {
     <main id="main" className="standalone">
       <Link className="text-link" href="/demo">
         <ArrowLeft size={16} />
-        Back to demo
+        Wróć do demo
       </Link>
       <Database className="mt-12 mb-6 text-primary" size={32} />
-      <h1>Connect your database.</h1>
+      <h1>Podłącz bazę danych.</h1>
       <p className="lede">
         {!config.configured && config.reason === "invalid"
-          ? "Supabase configuration is incomplete or invalid."
-          : "The demo is ready. User accounts require Supabase configuration."}
+          ? "Konfiguracja Supabase jest niepełna albo nieprawidłowa."
+          : "Rynek ofert działa na danych demonstracyjnych. Konta wymagają Supabase."}
       </p>
       <ol className="setup-steps">
-        <li>Create a Supabase project.</li>
+        <li>Utwórz izolowany projekt Supabase.</li>
         <li>
-          Copy <code>.env.example</code> to <code>.env.local</code> and enter the project URL and
-          public key.
+          Skopiuj <code>.env.example</code> do <code>.env.local</code> i wpisz URL projektu oraz
+          klucz publiczny.
         </li>
         <li>
-          Configure sign-in using <code>docs/supabase.md</code>.
+          Skonfiguruj logowanie według <code>docs/supabase.md</code>.
         </li>
-        <li>Restart the application server.</li>
+        <li>Uruchom aplikację ponownie.</li>
       </ol>
       <p className="text-sm text-muted-foreground">
-        Never use a service_role key. The instructions also cover email confirmation and password
-        recovery.
+        Nigdy nie używaj klucza service_role. Instrukcja obejmuje też potwierdzanie adresu i
+        odzyskiwanie hasła.
       </p>
     </main>
   );

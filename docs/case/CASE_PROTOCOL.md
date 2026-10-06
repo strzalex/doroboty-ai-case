@@ -162,12 +162,11 @@ Required product events include:
 - `job_viewed`
 - `application_started`
 - `application_submitted`
-- `one_click_apply_used`
-- `ai_job_draft_generated`
-- `ai_job_draft_accepted`
-- `ai_application_draft_generated`
-- `ai_application_draft_accepted`
-- `employer_application_reviewed`
+- `one_click_used`
+- `ai_generation_started`
+- `ai_generation_completed`
+- `ai_generation_approved`
+- `employer_reviewed`
 
 Abandonment is derived from starts without submissions. Recruiting stage changes and
 interview outcomes remain operational records, not browser telemetry.

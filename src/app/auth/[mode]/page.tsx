@@ -9,7 +9,7 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ mode: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const { mode } = await params;
   if (!["sign-in", "sign-up", "forgot-password", "update-password"].includes(mode)) notFound();
@@ -21,11 +21,15 @@ export default async function Page({
     } = await client.auth.getUser();
     if (!user) redirect("/auth/forgot-password");
   }
+  const query = await searchParams;
+  const nextPath =
+    query.next?.startsWith("/") && !query.next.startsWith("//") ? query.next : "/app";
   return (
     <AuthForm
       key={mode}
       mode={mode as AuthMode}
-      linkError={(await searchParams).error === "link"}
+      linkError={query.error === "link"}
+      nextPath={nextPath}
     />
   );
 }

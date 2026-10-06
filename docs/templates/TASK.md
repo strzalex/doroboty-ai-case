@@ -1,4 +1,4 @@
-# __TASK_NAME__
+# **TASK_NAME**
 
 Slug: `__TASK_SLUG__`
 Created: 2026\-10\-06

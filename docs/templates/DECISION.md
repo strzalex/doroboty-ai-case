@@ -1,4 +1,4 @@
-# __DECISION_TITLE__
+# **DECISION_TITLE**
 
 Date: 2026\-10\-06
 Status: Proposed

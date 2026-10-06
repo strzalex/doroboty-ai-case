@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd "$script_dir/.." && pwd)"
+cd "$root"
+
+for command in git node npm docker; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "missing required command: $command" >&2
+    exit 1
+  fi
+done
+
+node_major="$(node -p 'process.versions.node.split(`.`)[0]')"
+if [[ "$node_major" -lt 24 || "$node_major" -gt 26 ]]; then
+  echo "Node 24–26 is required; found $(node --version)" >&2
+  exit 1
+fi
+
+npm ci
+npm run db:start
+npm run db:reset
+npm run case:accounts
+npm run case:validate
+npm run check
+
+echo "DoRoboty.ai is ready at http://localhost:3000 after: npm run dev"

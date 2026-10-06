@@ -3,7 +3,11 @@ import { serverClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/env";
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const next = params.get("next") === "/auth/update-password" ? "/auth/update-password" : "/app";
+  const requestedNext = params.get("next") ?? "";
+  const next =
+    requestedNext === "/auth/update-password" || /^\/aplikuj\/[a-z0-9-]+$/.test(requestedNext)
+      ? requestedNext
+      : "/app";
   if (getSupabaseConfig().configured) {
     const client = await serverClient();
     const code = params.get("code");

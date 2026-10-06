@@ -5,11 +5,17 @@ import { useState } from "react";
 import {
   ArrowUpRight,
   Blocks,
+  BriefcaseBusiness,
+  Building2,
+  ChartNoAxesCombined,
+  Inbox,
   LayoutDashboard,
   LogOut,
   Menu,
+  Send,
   Settings2,
   Sparkles,
+  UserRound,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,21 +25,45 @@ export function AppShell({
   children,
   mode,
   email,
+  role,
 }: {
   children: React.ReactNode;
   mode: "demo" | "live";
   email?: string;
+  role?: "candidate" | "employer" | "operator";
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const base = mode === "demo" ? "/demo" : "/app";
-  const links = [
-    { href: base, label: "Overview", icon: LayoutDashboard },
-    { href: `${base}/settings`, label: "Settings", icon: Settings2 },
-    { href: "/components", label: "Components", icon: Blocks },
-  ];
+  const links =
+    mode === "demo"
+      ? [
+          { href: base, label: "Overview", icon: LayoutDashboard },
+          { href: `${base}/settings`, label: "Settings", icon: Settings2 },
+          { href: "/components", label: "Components", icon: Blocks },
+        ]
+      : [
+          { href: base, label: "Start", icon: LayoutDashboard },
+          ...(role === "candidate"
+            ? [
+                { href: `${base}/profil`, label: "Profil", icon: UserRound },
+                { href: `${base}/aplikacje`, label: "Aplikacje", icon: Send },
+                { href: "/oferty", label: "Oferty", icon: BriefcaseBusiness },
+              ]
+            : [
+                { href: `${base}/kandydaci`, label: "Kandydaci", icon: Inbox },
+                { href: `${base}/oferty`, label: "Oferty firmy", icon: BriefcaseBusiness },
+                ...(role === "employer"
+                  ? [{ href: `${base}/organizacja`, label: "Organizacja", icon: Building2 }]
+                  : []),
+                ...(role === "operator"
+                  ? [{ href: `${base}/case`, label: "Case", icon: ChartNoAxesCombined }]
+                  : []),
+              ]),
+          { href: `${base}/settings`, label: "Ustawienia", icon: Settings2 },
+        ];
   async function logout() {
     setBusy(true);
     setError("");
@@ -57,7 +87,7 @@ export function AppShell({
           <span className="brand-mark">
             <Sparkles size={18} />
           </span>
-          DoRoboty<span className="text-primary">.ai</span>
+          DoRoboty<span className="bg-primary px-1 text-foreground">.ai</span>
         </Link>
         <Button
           variant="ghost"
@@ -75,13 +105,21 @@ export function AppShell({
           <span className="brand-mark">
             <Sparkles size={18} />
           </span>
-          DoRoboty<span className="text-primary">.ai</span>
+          DoRoboty<span className="bg-primary px-1 text-foreground">.ai</span>
         </Link>
         <div className="workspace-label">
-          <span className="workspace-avatar">S</span>
+          <span className="workspace-avatar">D</span>
           <div>
-            <strong>My workspace</strong>
-            <span>{mode === "demo" ? "Demo version" : "Your account"}</span>
+            <strong>{mode === "demo" ? "Demo startera" : "DoRoboty.ai"}</strong>
+            <span>
+              {mode === "demo"
+                ? "Wersja demonstracyjna"
+                : role === "candidate"
+                  ? "Kandydat"
+                  : role === "employer"
+                    ? "Pracodawca"
+                    : "Operator"}
+            </span>
           </div>
         </div>
         <nav aria-label="Main navigation">
@@ -104,10 +142,10 @@ export function AppShell({
         <div className="sidebar-bottom">
           {mode === "demo" ? (
             <>
-              <p>Have an idea?</p>
-              <span>Connect a database and start building your application.</span>
+              <p>Środowisko techniczne</p>
+              <span>Komponenty startowe pozostają dostępne do testów regresji.</span>
               <Link href="/app" className="nav-link">
-                Open application <ArrowUpRight size={16} />
+                Otwórz aplikację <ArrowUpRight size={16} />
               </Link>
             </>
           ) : (
@@ -115,7 +153,7 @@ export function AppShell({
               <p className="break-all">{email}</p>
               <Button variant="ghost" onClick={logout} disabled={busy}>
                 <LogOut />
-                {busy ? "Signing out…" : "Sign out"}
+                {busy ? "Wylogowuję…" : "Wyloguj się"}
               </Button>
               {error && <p role="alert">{error}</p>}
             </>
@@ -128,25 +166,33 @@ export function AppShell({
       <div className="workspace">
         <div className="topbar">
           <span>
-            My workspace <span className="px-3 text-border">/</span>{" "}
+            DoRoboty.ai <span className="px-3 text-border">/</span>{" "}
             {pathname.includes("settings")
-              ? "Settings"
-              : pathname === "/components"
-                ? "Components"
-                : "Documents"}
+              ? "Ustawienia"
+              : pathname.includes("profil")
+                ? "Profil"
+                : pathname.includes("aplikacje")
+                  ? "Aplikacje"
+                  : pathname.includes("kandydaci")
+                    ? "Kandydaci"
+                    : pathname.includes("case")
+                      ? "Case"
+                      : pathname === "/components"
+                        ? "Components"
+                        : "Start"}
           </span>
           <span className="mode-label">
             <span className="status-dot" />
-            {mode === "demo" ? "Demo mode" : "Supabase"}
+            {mode === "demo" ? "Tryb demo" : "Bezpieczna sesja"}
           </span>
         </div>
         <main id="main" className="main-content">
           {children}
         </main>
         <footer className="app-footer">
-          <span>Your idea. Your next step.</span>
-          <Link href="/components">
-            Explore components <ArrowUpRight size={13} />
+          <span>Do roboty. Z konkretem.</span>
+          <Link href={mode === "demo" ? "/components" : "/oferty"}>
+            {mode === "demo" ? "Komponenty" : "Publiczne oferty"} <ArrowUpRight size={13} />
           </Link>
         </footer>
       </div>

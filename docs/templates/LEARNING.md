@@ -1,4 +1,4 @@
-# __LEARNING_TITLE__
+# **LEARNING_TITLE**
 
 Date: 2026\-10\-06
 
