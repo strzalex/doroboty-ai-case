@@ -5,7 +5,6 @@ import "@fontsource/chakra-petch/400.css";
 import "@fontsource/chakra-petch/600.css";
 import "@fontsource/chakra-petch/700.css";
 import "./globals.css";
-import { Providers } from "@/components/providers";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: { default: "DoRoboty.ai", template: "%s · DoRoboty.ai" },
@@ -22,9 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pl" suppressHydrationWarning>
-      <body>
-        <Providers>{children}</Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

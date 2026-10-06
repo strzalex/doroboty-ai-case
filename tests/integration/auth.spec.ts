@@ -526,6 +526,7 @@ test("candidate and employer AI drafts require approval and preserve public sour
     .eq("job_id", "20000000-0000-4000-8000-000000000004");
   expect(candidateApplicationsAfter.count).toBe(candidateApplicationsBefore.count);
 
+  await page.goto("/app");
   await page.getByRole("button", { name: "Wyloguj się", exact: true }).click();
   const employer = await fixtureClient("employer@doroboty.local");
   const originalJob = await employer
