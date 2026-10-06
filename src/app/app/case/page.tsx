@@ -107,6 +107,9 @@ export default async function CaseOperationsPage({
         >
           Ustaw i ukryj późniejsze etapy
         </button>
+        <p className="w-full font-ui text-xs font-bold uppercase" aria-live="polite">
+          Potwierdzony aktywny etap: {labels[(activeRelease ?? "baseline") as CaseReleaseKey]}
+        </p>
       </form>
       {["post_ai", "pilot", "demo_day"].includes(release) && (
         <div className="mt-6 border-2 bg-accent p-4 font-ui font-bold">

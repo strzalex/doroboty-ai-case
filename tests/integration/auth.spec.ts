@@ -481,13 +481,26 @@ test("only an operator can inspect and release every case stage", async ({ page 
   ]) {
     await page.getByLabel("Aktywny etap").selectOption(release);
     await page.getByRole("button", { name: "Ustaw i ukryj późniejsze etapy" }).click();
-    await expect(page.getByLabel("Aktywny etap")).toHaveValue(release);
+    await expect(page.getByText("Potwierdzony aktywny etap:")).toContainText(
+      release === "post_one_click"
+        ? "Po one-click"
+        : release === "post_ai"
+          ? "Po interwencji AI"
+          : release === "demo_day"
+            ? "Demo Day"
+            : release === "pilot"
+              ? "Pilot"
+              : release[0]!.toUpperCase() + release.slice(1),
+    );
   }
 });
 
 test("candidate and employer AI drafts require approval and preserve public source truth", async ({
   page,
 }) => {
+  const operator = await fixtureClient("operator@doroboty.local");
+  const release = await operator.rpc("release_case", { target_release: "demo_day" });
+  expect(release.error).toBeNull();
   const candidate = await fixtureClient("candidate@doroboty.local");
   const candidateApplicationsBefore = await candidate
     .from("applications")

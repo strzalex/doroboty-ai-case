@@ -84,11 +84,14 @@ await db.query(`select public.submit_application_with_evidence(
 )`);
 const employerA = "70000000-0000-4000-8000-000000000003";
 const employerB = "70000000-0000-4000-8000-000000000004";
+const operator = "70000000-0000-4000-8000-000000000005";
 await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false);
   insert into auth.users (id, raw_user_meta_data) values
     ('${employerA}', '{"display_name":"Employer A"}'),
-    ('${employerB}', '{"display_name":"Employer B"}');
+    ('${employerB}', '{"display_name":"Employer B"}'),
+    ('${operator}', '{"display_name":"Operator"}');
   update public.profiles set role = 'employer' where id in ('${employerA}', '${employerB}');
+  update public.profiles set role = 'operator' where id = '${operator}';
   insert into public.organization_memberships (organization_id, user_id, role) values
     ('40000000-0000-4000-8000-000000000001', '${employerA}', 'recruiter'),
     ('40000000-0000-4000-8000-000000000002', '${employerB}', 'recruiter');`);
@@ -96,6 +99,14 @@ await actAs(employerA);
 const employerAApplications = (await db.query("select id from public.applications")).rows;
 if (employerAApplications.length !== 1 || employerAApplications[0].id !== applicationId) {
   throw new Error("Organization RLS did not isolate employer applications.");
+}
+await actAs(operator);
+for (const release of ["baseline", "post_one_click", "discovery", "post_ai", "pilot", "demo_day"]) {
+  await db.query("select public.release_case($1)", [release]);
+  const active = (await db.query("select public.current_case_release() as release")).rows[0]
+    ?.release;
+  if (active !== release)
+    throw new Error(`Case release failed: expected ${release}, got ${active}.`);
 }
 await db.exec("reset role; select set_config('request.jwt.claim.sub', '', false);");
 

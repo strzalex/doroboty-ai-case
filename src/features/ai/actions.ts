@@ -1,13 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { requireProfile } from "@/features/auth/session";
 import { generateAiText } from "@/features/ai/provider";
+import { aiJobIdSchema, jobDraftApprovalSchema, jobDraftSchema } from "@/features/ai/schema";
 import { captureAnalytics } from "@/features/analytics/server";
 import { authorizeAiTreatment } from "@/features/experiments/server";
-
-const uuidSchema = z.uuid();
 
 export type CandidateDraftResult = {
   ok: boolean;
@@ -17,7 +15,7 @@ export type CandidateDraftResult = {
 };
 
 export async function generateCandidateDraft(jobId: string): Promise<CandidateDraftResult> {
-  const parsedJobId = uuidSchema.safeParse(jobId);
+  const parsedJobId = aiJobIdSchema.safeParse(jobId);
   if (!parsedJobId.success) return { ok: false, message: "Nieprawidłowa oferta." };
   const { client, user, profile } = await requireProfile(["candidate"]);
   if (!(await authorizeAiTreatment(client, "candidate_answer", profile.role === "operator"))) {
@@ -129,15 +127,6 @@ export async function generateCandidateDraft(jobId: string): Promise<CandidateDr
   }
 }
 
-const jobDraftSchema = z.object({ jobId: z.uuid() });
-const approvalSchema = z.object({
-  jobId: z.uuid(),
-  generationId: z.uuid(),
-  title: z.string().trim().min(2).max(160),
-  summary: z.string().trim().min(20).max(300),
-  description: z.string().trim().min(50).max(30000),
-});
-
 export type JobDraftState = {
   ok: boolean;
   message: string;
@@ -226,7 +215,7 @@ export async function approveJobDraft(
   formData: FormData,
 ): Promise<JobDraftState> {
   const { client, user } = await requireProfile(["employer", "operator"]);
-  const parsed = approvalSchema.safeParse({
+  const parsed = jobDraftApprovalSchema.safeParse({
     jobId: formData.get("jobId"),
     generationId: formData.get("generationId"),
     title: formData.get("title"),

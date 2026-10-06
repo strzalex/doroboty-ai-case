@@ -66,10 +66,19 @@ export function ExperienceForm() {
   return (
     <form action={action} className="form-stack border-2 bg-card p-6">
       <h2 className="font-display text-3xl uppercase">Dodaj doświadczenie</h2>
-      <Field label="Rola" name="title" required />
-      <Field label="Firma lub projekt" name="companyName" required />
-      <TextField label="Co zrobiłeś / zrobiłaś" name="description" required />
-      <TextField label="Mierzalny efekt (opcjonalnie)" name="measurableOutcome" />
+      <Field id="experience-title" label="Rola" name="title" required />
+      <Field id="experience-company" label="Firma lub projekt" name="companyName" required />
+      <TextField
+        id="experience-description"
+        label="Co zrobiłeś / zrobiłaś"
+        name="description"
+        required
+      />
+      <TextField
+        id="experience-outcome"
+        label="Mierzalny efekt (opcjonalnie)"
+        name="measurableOutcome"
+      />
       <ActionMessage state={state} />
       <Button type="submit" disabled={pending}>
         {pending ? "Dodaję…" : "Dodaj doświadczenie"}
@@ -83,10 +92,10 @@ export function WorkSampleForm() {
   return (
     <form action={action} className="form-stack border-2 bg-card p-6">
       <h2 className="font-display text-3xl uppercase">Dodaj próbkę pracy</h2>
-      <Field label="Tytuł" name="title" required />
-      <Field label="Link HTTPS (opcjonalnie)" name="url" type="url" />
-      <TextField label="Kontekst" name="context" required />
-      <TextField label="Wynik" name="outcome" required />
+      <Field id="work-sample-title" label="Tytuł" name="title" required />
+      <Field id="work-sample-url" label="Link HTTPS (opcjonalnie)" name="url" type="url" />
+      <TextField id="work-sample-context" label="Kontekst" name="context" required />
+      <TextField id="work-sample-outcome" label="Wynik" name="outcome" required />
       <ActionMessage state={state} />
       <Button type="submit" disabled={pending}>
         {pending ? "Dodaję…" : "Dodaj próbkę"}
@@ -98,12 +107,13 @@ export function WorkSampleForm() {
 function Field({
   label,
   name,
+  id = name,
   ...props
 }: React.ComponentProps<typeof Input> & { label: string; name: string }) {
   return (
     <div className="field">
-      <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} {...props} />
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} name={name} {...props} />
     </div>
   );
 }
@@ -111,12 +121,13 @@ function Field({
 function TextField({
   label,
   name,
+  id = name,
   ...props
 }: React.ComponentProps<typeof Textarea> & { label: string; name: string }) {
   return (
     <div className="field">
-      <Label htmlFor={name}>{label}</Label>
-      <Textarea id={name} name={name} rows={5} {...props} />
+      <Label htmlFor={id}>{label}</Label>
+      <Textarea id={id} name={name} rows={5} {...props} />
     </div>
   );
 }
