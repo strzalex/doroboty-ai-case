@@ -86,7 +86,7 @@ test("keyboard, form validation, and theme persistence", async ({ page }) => {
 
 test("missing configuration and stale data do not affect the demo", async ({ page }) => {
   await page.goto("/app");
-  await expect(page.getByRole("heading", { name: "Connect your database." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Podłącz bazę danych." })).toBeVisible();
   await page.goto("/demo");
   await page.evaluate(() => localStorage.setItem("doroboty.projects.v1", "corrupted"));
   await page.reload();

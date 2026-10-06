@@ -122,8 +122,10 @@ test("RLS isolates candidate evidence and prevents role escalation", async () =>
   const foreign = await a.client.from("candidate_profiles").select("user_id").eq("user_id", b.id);
   expect(foreign.error).toBeNull();
   expect(foreign.data).toHaveLength(0);
-  const escalation = await a.client.from("profiles").update({ role: "operator" }).eq("id", a.id);
-  expect(escalation.error).not.toBeNull();
+  await a.client.from("profiles").update({ role: "operator" }).eq("id", a.id);
+  const roleAfterAttempt = await a.client.from("profiles").select("role").eq("id", a.id).single();
+  expect(roleAfterAttempt.error).toBeNull();
+  expect(roleAfterAttempt.data?.role).toBe("candidate");
 });
 
 test("application submission is atomic, idempotent, and private", async () => {
@@ -224,7 +226,7 @@ test("candidate application and employer first-conversation decision work end to
     .fill("Zmapowałem proces finansowy, przetestowałem prototyp i poprowadziłem wdrożenie.");
   await page.getByLabel("Mierzalny efekt (opcjonalnie)").fill("Czas obsługi spadł o 20 procent.");
   await page.getByRole("button", { name: "Dodaj doświadczenie" }).click();
-  await expect(page.getByRole("status")).toContainText("dodane");
+  await expect(page.getByRole("status").filter({ hasText: "Doświadczenie dodane." })).toBeVisible();
 
   await page.goto("/aplikuj/ai-product-manager");
   const answer = page.getByLabel("Dlaczego pasujesz do tej roli?");
