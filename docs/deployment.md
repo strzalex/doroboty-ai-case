@@ -6,7 +6,7 @@ Repozytorium zawiera konfigurację, ale nie tworzy automatycznie kont, projektu 
 
 Opublikuj repo i ustaw `main` jako gałąź domyślną. Po pierwszym przebiegu CI włącz ruleset wymagający pull requesta oraz kontroli **Quality and demo** i **Supabase integration**. Dostępność reguł zależy od planu i widoczności repo. Nie traktuj samego pliku YAML jako ochrony gałęzi.
 
-CI działa bez sekretów produkcyjnych, z minimalnym uprawnieniem `contents: read`. Drugi job uruchamia własny Supabase na runnerze. Raporty i ślady Playwright są dostępne w artefaktach przez 7 dni. Dependabot otwiera propozycje aktualizacji; nie ma automatycznego merge.
+CI działa bez sekretów produkcyjnych, z minimalnym uprawnieniem `contents: read`. Drugi job uruchamia własny Supabase na runnerze. Raporty i ślady Playwright są dostępne w artefaktach przez 7 dni. Aktualizacje zależności wykonujemy ręcznie; automatyczne PR-y Dependabota są wyłączone.
 
 ## Vercel
 
