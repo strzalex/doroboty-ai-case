@@ -15,6 +15,7 @@
     "test:e2e": "node scripts/demo-check.mjs",
     "test:integration": "node scripts/integration.mjs",
     "test:lighthouse": "node scripts/lighthouse-check.mjs",
+    "test:deployment": "node scripts/deployment-smoke.mjs",
     "security:check": "node scripts/security-check.mjs",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run test:e2e",
     "db:start": "supabase start",

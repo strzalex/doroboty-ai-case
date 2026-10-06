@@ -23,6 +23,16 @@ CI runs without production secrets and uses the minimum `contents: read` permiss
 
 Browse and filter jobs at 320px and desktop widths. Create a candidate account, complete a synthetic profile, submit an application, then verify an employer can review only its organization. Confirm password recovery, operator release controls, AI safe failure, PostHog event properties, and no future-stage evidence. Check Vercel logs and SMTP delivery. Do not log passwords, tokens, prompts, or free text.
 
+Run the public deployment smoke test against the canonical URL:
+
+```bash
+DEPLOYMENT_URL=https://doroboty-ai-case.vercel.app npm run test:deployment
+```
+
+The gate checks the homepage, marketplace, representative job, sign-in page, robots file,
+and sitemap over HTTPS. Authenticated journeys still require an isolated Supabase project and
+must be verified separately with synthetic accounts.
+
 Before collecting important data, configure Supabase backups and Vercel monitoring, verify restore on a non-production project, and record the active case release.
 
 ## Rollback

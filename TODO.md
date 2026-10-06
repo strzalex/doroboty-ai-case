@@ -346,7 +346,7 @@ invariants, and anti-spoiler rules are in
 - [ ] **M9-07** Verify analytics delivery in an isolated PostHog EU project and prove no PII
       appears in captured properties.
 - [x] **M9-08** Run dependency, secret, and source-map reviews; resolve high-risk findings.
-- [ ] **M9-09** Run production build, CI, accessibility, performance, and deployment smoke
+- [x] **M9-09** Run production build, CI, accessibility, performance, and deployment smoke
       tests.
 - [ ] **M9-10** Run an instructor dry run from baseline reset through final release and
       document every manual step.
