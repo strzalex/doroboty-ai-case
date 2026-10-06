@@ -4,6 +4,10 @@
 
 An application starter for working with Codex: Next.js, shadcn/ui on Base UI, Supabase Auth, and automated quality checks.
 
+## Demo preview
+
+![Superstarter demo dashboard with metric cards, a visitor chart, and a document table](docs/assets/superstarter-demo.png)
+
 ## Getting started
 
 Node.js 24 and npm:
