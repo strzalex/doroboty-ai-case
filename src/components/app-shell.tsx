@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Blocks,
   BriefcaseBusiness,
+  Building2,
   ChartNoAxesCombined,
   Inbox,
   LayoutDashboard,
@@ -54,6 +55,9 @@ export function AppShell({
             : [
                 { href: `${base}/kandydaci`, label: "Kandydaci", icon: Inbox },
                 { href: `${base}/oferty`, label: "Oferty firmy", icon: BriefcaseBusiness },
+                ...(role === "employer"
+                  ? [{ href: `${base}/organizacja`, label: "Organizacja", icon: Building2 }]
+                  : []),
                 ...(role === "operator"
                   ? [{ href: `${base}/case`, label: "Case", icon: ChartNoAxesCombined }]
                   : []),

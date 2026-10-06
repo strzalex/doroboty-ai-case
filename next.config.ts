@@ -8,6 +8,7 @@ if (isPrivilegedKey(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "")) {
 }
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   // The marketplace prioritizes complete crawlable HTML and correct not-found status codes.
   // Treat every user agent as HTML-limited so dynamic metadata is resolved before streaming.
   htmlLimitedBots: /.*/,

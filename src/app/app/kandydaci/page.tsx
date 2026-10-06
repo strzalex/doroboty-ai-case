@@ -13,15 +13,26 @@ const actions = [
   ["hired", "Zatrudniona/y"],
 ] as const;
 
-export default async function EmployerInboxPage() {
+const statuses = ["submitted", "in_review", "interview", "continued", "rejected", "hired"] as const;
+
+export default async function EmployerInboxPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   if (!getSupabaseConfig().configured) return null;
   const { client, profile } = await requireProfile(["employer", "operator"]);
-  const query = client
+  const requestedStatus = (await searchParams).status;
+  const status = statuses.includes(requestedStatus as (typeof statuses)[number])
+    ? requestedStatus
+    : undefined;
+  let query = client
     .from("applications")
     .select(
       "id, status, variant, answer, source_snapshot, submitted_at, job:jobs(title, slug), events:application_stage_events(stage, occurred_at, note)",
     )
     .order("submitted_at", { ascending: false });
+  if (status) query = query.eq("status", status);
   const { data, error } = await query;
   if (error) throw new Error("Nie udało się wczytać aplikacji pracodawcy.");
 
@@ -36,6 +47,29 @@ export default async function EmployerInboxPage() {
           {profile.role === "operator" ? "Widok operatora" : "Widok pracodawcy"}
         </span>
       </div>
+      <form className="mb-6 flex flex-wrap items-end gap-2 border-2 bg-secondary p-4">
+        <label className="font-ui text-xs font-bold uppercase">
+          Status
+          <select
+            className="mt-1 block h-10 border-2 bg-background px-2"
+            name="status"
+            defaultValue={status ?? ""}
+          >
+            <option value="">Wszystkie</option>
+            {statuses.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="h-10 border-2 bg-primary px-4 font-ui text-xs font-bold uppercase"
+          type="submit"
+        >
+          Filtruj
+        </button>
+      </form>
       {(data ?? []).length === 0 ? (
         <div className="empty-state">
           <h2>Brak aplikacji</h2>

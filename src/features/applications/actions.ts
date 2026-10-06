@@ -99,6 +99,12 @@ export async function submitApplication(
       usedAi: Boolean(parsed.data.aiGenerationId),
     },
   });
+  if (parsed.data.variant === "one_click") {
+    await captureAnalytics(user.id, {
+      event: "one_click_used",
+      properties: { jobId: parsed.data.jobId },
+    });
+  }
   redirect("/app/aplikacje?submitted=1");
 }
 

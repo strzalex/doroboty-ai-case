@@ -63,6 +63,28 @@ export default async function WorkspaceHome() {
           href="/oferty"
         />
       </div>
+      {profile.role === "operator" && (
+        <section className="mt-8 border-2 bg-secondary p-5">
+          <h2 className="font-display text-3xl uppercase">Stan środowiska</h2>
+          <ul className="mt-4 grid gap-2 font-ui text-sm sm:grid-cols-3">
+            <li>
+              <strong>Supabase:</strong> podłączony
+            </li>
+            <li>
+              <strong>PostHog:</strong>{" "}
+              {process.env.POSTHOG_PROJECT_KEY ? "podłączony" : "wyłączony — eventy są no-op"}
+            </li>
+            <li>
+              <strong>AI:</strong>{" "}
+              {process.env.AI_PROVIDER === "openai-compatible"
+                ? process.env.AI_API_KEY
+                  ? "dostawca zewnętrzny"
+                  : "brak klucza — bezpieczny błąd"
+                : "deterministyczny dostawca kursowy"}
+            </li>
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

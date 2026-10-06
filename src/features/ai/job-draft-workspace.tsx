@@ -25,53 +25,71 @@ function isApprovedDraft(state: JobDraftState): state is ApprovedDraftState {
   );
 }
 
-export function JobDraftWorkspace({ jobs }: { jobs: { id: string; title: string }[] }) {
+export function JobDraftWorkspace({
+  jobs,
+  allowAi,
+}: {
+  jobs: { id: string; title: string }[];
+  allowAi: boolean;
+}) {
   const [state, action, pending] = useActionState(generateJobDraft, initialState);
   return (
     <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
-      <form action={action} className="form-stack h-fit border-2 bg-card p-6">
-        <h2 className="font-display text-3xl uppercase">Szkic z briefu</h2>
-        <p>
-          Model widzi prywatny brief i kryteria decyzji. Wygenerowany tekst nie publikuje się
-          automatycznie.
-        </p>
-        <div className="field">
-          <Label htmlFor="jobId">Oferta</Label>
-          <select
-            id="jobId"
-            name="jobId"
-            required
-            className="h-10 w-full border-2 bg-background px-2 font-ui"
-          >
-            {jobs.map((job) => (
-              <option key={job.id} value={job.id}>
-                {job.title}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Button type="submit" disabled={pending || !jobs.length}>
-          {pending ? "Generuję…" : "Wygeneruj szkic"}
-        </Button>
-        {state.message && (
-          <p
-            role={state.ok ? "status" : "alert"}
-            className={state.ok ? "success-panel" : "error-message"}
-          >
-            {state.message}
-          </p>
-        )}
-      </form>
-      {isApprovedDraft(state) ? (
-        <ApprovalForm key={state.generationId} state={state} />
-      ) : (
-        <div className="empty-state">
-          <h2>Szkic pojawi się tutaj</h2>
+      {!allowAi ? (
+        <div className="empty-state lg:col-span-2">
+          <h2>Wariant ręczny</h2>
           <p>
-            Przed zatwierdzeniem porównaj go z briefem i przywróć kryteria, których model nie
-            zachował.
+            W tej kohorcie tekst oferty powstaje bez asysty AI. Źródłowy brief i publikacja
+            pozostają rozdzielone.
           </p>
         </div>
+      ) : (
+        <>
+          <form action={action} className="form-stack h-fit border-2 bg-card p-6">
+            <h2 className="font-display text-3xl uppercase">Szkic z briefu</h2>
+            <p>
+              Model widzi prywatny brief i kryteria decyzji. Wygenerowany tekst nie publikuje się
+              automatycznie.
+            </p>
+            <div className="field">
+              <Label htmlFor="jobId">Oferta</Label>
+              <select
+                id="jobId"
+                name="jobId"
+                required
+                className="h-10 w-full border-2 bg-background px-2 font-ui"
+              >
+                {jobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Button type="submit" disabled={pending || !jobs.length}>
+              {pending ? "Generuję…" : "Wygeneruj szkic"}
+            </Button>
+            {state.message && (
+              <p
+                role={state.ok ? "status" : "alert"}
+                className={state.ok ? "success-panel" : "error-message"}
+              >
+                {state.message}
+              </p>
+            )}
+          </form>
+          {isApprovedDraft(state) ? (
+            <ApprovalForm key={state.generationId} state={state} />
+          ) : (
+            <div className="empty-state">
+              <h2>Szkic pojawi się tutaj</h2>
+              <p>
+                Przed zatwierdzeniem porównaj go z briefem i przywróć kryteria, których model nie
+                zachował.
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

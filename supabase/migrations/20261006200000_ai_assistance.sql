@@ -24,6 +24,9 @@ create table public.ai_generations (
 alter table public.applications
   add column answer_generation_id uuid references public.ai_generations(id) on delete set null;
 
+alter table public.job_text_versions
+  add column generation_id uuid references public.ai_generations(id) on delete set null;
+
 create table public.application_answer_versions (
   id uuid primary key default gen_random_uuid(),
   application_id uuid not null references public.applications(id) on delete cascade,
@@ -72,6 +75,7 @@ create policy "requesters and involved employers read AI generations" on public.
 create policy "users create their own AI generations" on public.ai_generations for insert to authenticated
   with check (
     requested_by = auth.uid()
+    and application_id is null
     and (
       (purpose = 'candidate_answer' and public.current_profile_role() = 'candidate')
       or (
@@ -151,9 +155,9 @@ begin
   select coalesce(max(version), 0) + 1 into next_version
   from public.job_text_versions where job_id = target_job_id;
   insert into public.job_text_versions (
-    job_id, version, source, visibility, title, summary, description, approved_at
+    job_id, version, source, visibility, generation_id, title, summary, description, approved_at
   ) values (
-    target_job_id, next_version, 'human_edited', 'private', approved_title,
+    target_job_id, next_version, 'human_edited', 'private', target_generation_id, approved_title,
     approved_summary, approved_description, now()
   );
   update public.jobs set title = approved_title, summary = approved_summary,
@@ -228,11 +232,21 @@ begin
     update public.ai_generations set application_id = created_application
     where id = target_generation_id;
   end if;
+
+  insert into public.experiment_exposures (assignment_id, application_id)
+  select distinct experiment_exposures.assignment_id, created_application
+  from public.experiment_exposures
+  join public.experiment_assignments
+    on experiment_assignments.id = experiment_exposures.assignment_id
+  where experiment_assignments.subject_key = actor::text
+    and experiment_exposures.application_id is null
+  on conflict (assignment_id, application_id) do nothing;
   return created_application;
 end;
 $$;
 
 revoke all on public.ai_generations, public.application_answer_versions, public.fit_scores from anon;
+grant select on public.employer_briefs to authenticated;
 grant select, insert on public.ai_generations to authenticated;
 grant select on public.application_answer_versions, public.fit_scores to authenticated;
 revoke insert on public.applications from authenticated;

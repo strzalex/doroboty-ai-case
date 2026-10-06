@@ -10,27 +10,39 @@ export function SettingsView({ mode }: { mode: "demo" | "live" }) {
     <>
       <div className="page-heading">
         <div>
-          <h1>Settings</h1>
-          <p>Customize the appearance of your application.</p>
+          <h1>{mode === "demo" ? "Settings" : "Ustawienia"}</h1>
+          <p>
+            {mode === "demo"
+              ? "Customize the appearance of your application."
+              : "Dostosuj wygląd swojej strefy."}
+          </p>
         </div>
       </div>
       <section className="settings-section">
         <div>
-          <h2>Appearance</h2>
-          <p>Your theme preference is saved in this browser.</p>
+          <h2>{mode === "demo" ? "Appearance" : "Wygląd"}</h2>
+          <p>
+            {mode === "demo"
+              ? "Your theme preference is saved in this browser."
+              : "Wybór motywu zapisuje się w tej przeglądarce."}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {[
-            { key: "light", label: "Light", icon: Sun },
-            { key: "dark", label: "Dark", icon: Moon },
-            { key: "system", label: "System", icon: Monitor },
+            { key: "light", label: mode === "demo" ? "Light" : "Jasny", icon: Sun },
+            { key: "dark", label: mode === "demo" ? "Dark" : "Ciemny", icon: Moon },
+            { key: "system", label: mode === "demo" ? "System" : "Systemowy", icon: Monitor },
           ].map(({ key, label, icon: Icon }) => (
             <Button
               key={key}
               variant="outline"
               onClick={() => {
                 setTheme(key);
-                setMessage(`Theme: ${label.toLowerCase()}.`);
+                setMessage(
+                  mode === "demo"
+                    ? `Theme: ${label.toLowerCase()}.`
+                    : `Motyw: ${label.toLowerCase()}.`,
+                );
               }}
             >
               <Icon />
@@ -41,11 +53,11 @@ export function SettingsView({ mode }: { mode: "demo" | "live" }) {
       </section>
       <section className="settings-section">
         <div>
-          <h2>Sample data</h2>
+          <h2>{mode === "demo" ? "Sample data" : "Dane i prywatność"}</h2>
           <p>
             {mode === "demo"
               ? "The demo uses static data. Filters and selection reset when you reload the page."
-              : "This page uses static sample data. Supabase handles accounts and sign-in."}
+              : "Supabase przechowuje dane operacyjne. Analityka nie otrzymuje treści profilu, aplikacji ani notatek."}
           </p>
         </div>
       </section>

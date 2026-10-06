@@ -11,14 +11,26 @@ export default async function ApplyPage({ params }: { params: Promise<{ slug: st
   const job = await getPublishedJob((await params).slug);
   if (!job) notFound();
   const { client, user } = await requireProfile(["candidate"]);
-  const [{ data: candidate }, { count: experienceCount }] = await Promise.all([
-    client.from("candidate_profiles").select("headline, bio").eq("user_id", user.id).single(),
-    client
-      .from("candidate_experiences")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id),
-  ]);
+  const [{ data: candidate }, { count: experienceCount }, flowAssignment, aiAssignment] =
+    await Promise.all([
+      client.from("candidate_profiles").select("headline, bio").eq("user_id", user.id).single(),
+      client
+        .from("candidate_experiences")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id),
+      client.rpc("assign_experiment", { target_surface: "application_flow" }),
+      client.rpc("assign_experiment", { target_surface: "candidate_answer" }),
+    ]);
   const profileReady = Boolean(candidate?.headline && candidate?.bio && (experienceCount ?? 0) > 0);
+  if (flowAssignment.error || aiAssignment.error)
+    throw new Error("Nie udało się przydzielić wariantu eksperymentu.");
+  const flow = flowAssignment.data as { id: string; variant: "long_form" | "one_click" };
+  const ai = aiAssignment.data as { id: string; variant: "manual" | "ai_draft" };
+  const variant = flow.variant === "one_click" && profileReady ? "one_click" : "long_form";
+  const initialAnswer =
+    variant === "one_click"
+      ? `${candidate?.headline}. ${candidate?.bio} Chcę podczas rozmowy pokazać konkretne decyzje i wyniki.`
+      : "";
 
   return (
     <section className="mx-auto grid max-w-5xl gap-10 px-5 py-14 lg:grid-cols-[0.7fr_1.3fr] lg:px-8 lg:py-20">
@@ -37,7 +49,14 @@ export default async function ApplyPage({ params }: { params: Promise<{ slug: st
           </div>
         )}
       </div>
-      <ApplicationForm jobId={job.id} profileReady={profileReady} />
+      <ApplicationForm
+        jobId={job.id}
+        profileReady={profileReady}
+        variant={variant}
+        allowAi={ai.variant === "ai_draft"}
+        assignmentIds={[...(flow.variant === variant ? [flow.id] : []), ai.id]}
+        initialAnswer={initialAnswer}
+      />
     </section>
   );
 }

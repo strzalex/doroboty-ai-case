@@ -4,6 +4,7 @@ const api = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 const mail = process.env.LOCAL_MAIL_URL ?? "http://127.0.0.1:54324";
 const password = "Local-test-password-483!";
+const localCasePassword = "DoRoboty-local-only-2026!";
 test.beforeAll(() => {
   for (const url of [api, mail])
     if (!url || !["127.0.0.1", "localhost"].includes(new URL(url).hostname))
@@ -166,8 +167,87 @@ test("anonymous users cannot read employer briefs", async () => {
   const briefs = await anonymous.from("employer_briefs").select("id");
   expect(briefs.data ?? []).toHaveLength(0);
 });
+
+test("experiment assignment is stable and exposure is idempotent", async () => {
+  const account = await confirmedAccount("experiment");
+  const first = await account.client.rpc("assign_experiment", {
+    target_surface: "application_flow",
+  });
+  const second = await account.client.rpc("assign_experiment", {
+    target_surface: "application_flow",
+  });
+  expect(first.error).toBeNull();
+  expect(second.error).toBeNull();
+  expect(second.data.id).toBe(first.data.id);
+  expect(second.data.variant).toBe(first.data.variant);
+  const exposureA = await account.client.rpc("record_experiment_exposure", {
+    target_assignment_id: first.data.id,
+    target_application_id: null,
+  });
+  const exposureB = await account.client.rpc("record_experiment_exposure", {
+    target_assignment_id: first.data.id,
+    target_application_id: null,
+  });
+  expect(exposureA.error).toBeNull();
+  expect(exposureB.data).toBe(exposureA.data);
+});
 test("invalid confirmation links do not redirect outside the application", async ({ page }) => {
   await page.goto("/auth/callback?token_hash=invalid&type=signup&next=https://example.com");
   await expect(page).toHaveURL(/127.0.0.1:3107\/auth\/sign-in\?error=link/);
   await expect(page.locator("main").getByRole("alert")).toContainText("wygasł");
+});
+
+test("candidate application and employer first-conversation decision work end to end", async ({
+  page,
+}) => {
+  await page.goto("/auth/sign-in");
+  await page.getByLabel("Email", { exact: true }).fill("candidate@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+
+  await page.goto("/app/profil");
+  await page.getByLabel("Imię lub nazwa zawodowa").fill("Kandydat testowy");
+  await page.getByLabel("Nagłówek").fill("AI Product Manager");
+  await page
+    .getByLabel("O Tobie")
+    .fill("Prowadzę discovery i wdrożenia produktów AI w procesach operacyjnych.");
+  await page.getByLabel("Miasto").fill("Warszawa");
+  await page.getByLabel("Lata doświadczenia").fill("6");
+  await page.getByRole("button", { name: "Zapisz profil" }).click();
+  await expect(page.getByRole("status")).toContainText("zapisany");
+
+  await page.getByLabel("Rola", { exact: true }).fill("Product Manager");
+  await page.getByLabel("Firma lub projekt").fill("Fixture Labs");
+  await page
+    .getByLabel("Co zrobiłeś / zrobiłaś")
+    .fill("Zmapowałem proces finansowy, przetestowałem prototyp i poprowadziłem wdrożenie.");
+  await page.getByLabel("Mierzalny efekt (opcjonalnie)").fill("Czas obsługi spadł o 20 procent.");
+  await page.getByRole("button", { name: "Dodaj doświadczenie" }).click();
+  await expect(page.getByRole("status")).toContainText("dodane");
+
+  await page.goto("/aplikuj/ai-product-manager");
+  const answer = page.getByLabel("Dlaczego pasujesz do tej roli?");
+  if ((await answer.inputValue()).length < 40) {
+    await answer.fill(
+      "Prowadziłem discovery procesu finansowego i dowiozłem mierzalne wdrożenie z zespołem operacyjnym.",
+    );
+  }
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Wyślij aplikację" }).click();
+  await expect(page).toHaveURL(/\/app\/aplikacje\?submitted=1/);
+  await expect(page.getByRole("status")).toContainText("została wysłana");
+
+  await page.getByRole("button", { name: "Wyloguj się", exact: true }).click();
+  await page.getByLabel("Email", { exact: true }).fill("employer@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await page.goto("/app/kandydaci");
+  await expect(page.getByRole("heading", { name: "Kandydat testowy" })).toBeVisible();
+  await page.getByRole("button", { name: "Oznacz jako przejrzaną" }).click();
+  await expect(page.getByText("in_review", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Zaproś na rozmowę" }).click();
+  await page.getByRole("button", { name: "Rozmowa odbyta" }).click();
+  await page.getByRole("button", { name: "Kontynuujemy" }).click();
+  await expect(page.getByText("continued", { exact: true })).toBeVisible();
 });

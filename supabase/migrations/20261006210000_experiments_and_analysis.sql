@@ -107,6 +107,23 @@ begin
 end;
 $$;
 
+create or replace function public.can_use_ai(target_surface public.experiment_surface)
+returns boolean
+language sql
+stable
+security definer set search_path = ''
+as $$
+  select coalesce(public.is_operator() or exists (
+    select 1
+    from public.experiment_assignments
+    join public.experiment_exposures
+      on experiment_exposures.assignment_id = experiment_assignments.id
+    where experiment_assignments.subject_key = auth.uid()::text
+      and experiment_assignments.surface = target_surface
+      and experiment_assignments.variant = 'ai_draft'
+  ), false)
+$$;
+
 create view public.application_outcome_analysis
 with (security_invoker = true)
 as
@@ -126,6 +143,6 @@ left join public.fit_scores on fit_scores.application_id = applications.id
 left join public.interview_outcomes on interview_outcomes.application_id = applications.id;
 
 grant select on public.application_outcome_analysis to authenticated;
-grant execute on function public.current_case_release(), public.release_case(public.case_release_key), public.assign_experiment(public.experiment_surface), public.record_experiment_exposure(uuid, uuid) to authenticated;
+grant execute on function public.current_case_release(), public.release_case(public.case_release_key), public.assign_experiment(public.experiment_surface), public.record_experiment_exposure(uuid, uuid), public.can_use_ai(public.experiment_surface) to authenticated;
 
 comment on view public.application_outcome_analysis is 'Joinable proxy and downstream outcomes. Text fit is not a hiring decision.';

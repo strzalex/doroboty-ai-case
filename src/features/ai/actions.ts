@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireProfile } from "@/features/auth/session";
 import { generateAiText } from "@/features/ai/provider";
 import { captureAnalytics } from "@/features/analytics/server";
+import { authorizeAiTreatment } from "@/features/experiments/server";
 
 const uuidSchema = z.uuid();
 
@@ -18,7 +19,10 @@ export type CandidateDraftResult = {
 export async function generateCandidateDraft(jobId: string): Promise<CandidateDraftResult> {
   const parsedJobId = uuidSchema.safeParse(jobId);
   if (!parsedJobId.success) return { ok: false, message: "Nieprawidłowa oferta." };
-  const { client, user } = await requireProfile(["candidate"]);
+  const { client, user, profile } = await requireProfile(["candidate"]);
+  if (!(await authorizeAiTreatment(client, "candidate_answer", profile.role === "operator"))) {
+    return { ok: false, message: "Ten wariant nie ma dostępu do szkicu AI." };
+  }
   const [jobResult, candidateResult, experiencesResult, samplesResult] = await Promise.all([
     client
       .from("jobs")
@@ -148,7 +152,10 @@ export async function generateJobDraft(
   _previous: JobDraftState,
   formData: FormData,
 ): Promise<JobDraftState> {
-  const { client, user } = await requireProfile(["employer", "operator"]);
+  const { client, user, profile } = await requireProfile(["employer", "operator"]);
+  if (!(await authorizeAiTreatment(client, "employer_job_copy", profile.role === "operator"))) {
+    return { ok: false, message: "Ten wariant nie ma dostępu do szkicu AI." };
+  }
   const parsed = jobDraftSchema.safeParse({ jobId: formData.get("jobId") });
   if (!parsed.success) return { ok: false, message: "Wybierz ofertę." };
   const { data: job, error } = await client

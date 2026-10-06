@@ -28,6 +28,10 @@ The setup command checks tools, installs the locked dependency tree, starts loca
 
 If you do not maintain a local development environment, fork the prepared participant repository, import it into Vercel, and connect an isolated Supabase project by following [`deployment.md`](deployment.md). Never use a production database or an instructor project.
 
+## Stage-safe forks
+
+Participants must never fork the instructor repository directly. Before each stage, the instructor creates a new repository from a clean, history-free participant template, copies only the application code and evidence approved for that release, runs `npm run case:packet -- <release>` outside the participant repository, and adds only that packet. The participant forks this sanitized repository. Do not use a hidden branch, tag, source map, disabled route, or RLS alone to conceal later fixtures: all of those remain discoverable to someone with repository access. Rotate Supabase, PostHog, Vercel, and AI credentials between instructor and participant projects.
+
 ## Current context
 
 Read, in order:

@@ -21,6 +21,7 @@ fi
 npm ci
 npm run db:start
 npm run db:reset
+npm run case:accounts
 npm run case:validate
 npm run check
 
