@@ -1,5 +1,7 @@
 # Superstarter
 
+![Superstarter — rakieta w hangarze konstrukcyjnym](docs/assets/superstarter-cover.png)
+
 Starter aplikacji do pracy z Codex: Next.js, shadcn/ui na Base UI, Supabase Auth i automatyczne sprawdzanie jakości.
 
 ## Uruchomienie
