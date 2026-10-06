@@ -348,7 +348,7 @@ invariants, and anti-spoiler rules are in
 - [x] **M9-08** Run dependency, secret, and source-map reviews; resolve high-risk findings.
 - [x] **M9-09** Run production build, CI, accessibility, performance, and deployment smoke
       tests.
-- [ ] **M9-10** Run an instructor dry run from baseline reset through final release and
+- [x] **M9-10** Run an instructor dry run from baseline reset through final release and
       document every manual step.
 - [ ] **M9-11** Freeze the cohort release tag and publish rollback and recovery steps.
 

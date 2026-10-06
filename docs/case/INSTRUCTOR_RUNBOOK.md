@@ -31,6 +31,12 @@ onboarding, staged release sequence, AI approval boundaries, accessibility scans
 outcome chain. A human rehearsal still owns facilitation quality and whether the narrative feels
 discoverable rather than prescribed.
 
+For a deployed technical rehearsal, supply the synthetic operator password from a secret manager
+and run `npm run test:deployment:instructor`. The command verifies every participant packet, drives
+all six releases through the operator UI, checks fixture validation, opens the pilot calculator,
+and restores `discovery` in a `finally` block. It never prints the password. This complements rather
+than replaces the technical and non-technical participant-proxy rehearsal.
+
 ## Reset
 
 Run `npm run db:reset`, then `npm run case:accounts`. Verify `current_case_release()` returns the

@@ -12,7 +12,8 @@ contains no credentials or participant data.
 - Candidate commit: `7fb2ac05d529fbbc86bc9b3d8671eaae7de94de6`
 - Vercel project: `wstrzalk-gmailcoms-projects/doroboty-ai-case`
 - Canonical deployment: `https://doroboty-ai-case.vercel.app`
-- Last known-good deployment: `dpl_3QMDGaf4FFCMoiAm1dJrL1VB5n3L`
+- Last known-good deployment: `dpl_8DYjNMyitUNoQUgUtjvQQF8Num67`
+- Isolated Supabase project: `doroboty-ai-case` (`vgxoiljieuhvnpuojaet`, Frankfurt)
 
 ## Verified gates
 
@@ -21,13 +22,15 @@ contains no credentials or participant data.
 - Public HTTPS deployment smoke passed for homepage, marketplace, representative job, sign-in,
   robots, and sitemap.
 - Robots and sitemap use the canonical Vercel origin rather than localhost.
-- The deployed public application is intentionally in fixture mode until an isolated Supabase
-  project is connected.
+- Nine reviewed migrations and the deterministic seed were applied to the isolated Supabase
+  project after a successful dry run.
+- Candidate, employer, and operator authenticated deployment smoke passed in isolated browser
+  sessions using synthetic `.invalid` accounts.
+- The instructor deployment rehearsal passed all six release controls and participant packet
+  checks, opened the pilot calculator, reached Demo Day, and restored `discovery`.
 
 ## Remaining release gates
 
-- Complete Supabase CLI authorization, provision the approved isolated EU project, push reviewed
-  migrations, configure auth redirects, and run the authenticated role journey.
 - Verify typed analytics in an isolated PostHog EU project with synthetic IDs and inspect captured
   properties for PII.
 - Run the technical and non-technical proxy rehearsals, independent case-data review, and
