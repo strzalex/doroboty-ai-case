@@ -1,6 +1,6 @@
 # Supabase
 
-The demo runs without Supabase or Docker. The steps below enable user accounts. The dashboard continues to use static data. The starter contains no domain tables or SQL migrations.
+The public marketplace can run without Supabase or Docker by using deterministic fixtures. Authenticated case workflows require Supabase. Versioned migrations contain the domain model, RLS, experiment controls, AI provenance, and analysis view.
 
 ## Cloud project
 
@@ -11,7 +11,7 @@ The demo runs without Supabase or Docker. The steps below enable user accounts. 
 5. Connect your own SMTP service before sharing the application with users, and verify email delivery. The local test mailbox is not an email delivery service.
 6. Restart `npm run dev` and open `/app`.
 
-After signing in, users see the sample dashboard. Add domain tables and RLS when implementing product features. Incomplete configuration shows setup instructions without switching to demo mode.
+After signing in, candidates see profiles and applications, employers see jobs and their candidate inbox, and operators see release controls and case analysis. Incomplete configuration shows setup instructions without pretending authenticated data is available.
 
 ## Local integration tests
 
@@ -26,12 +26,12 @@ npm run db:stop
 
 The first start downloads images. Ports: 54321 for the API, 54322 for the database, 54323 for Studio, 54324 for the Mailpit test mailbox, and 3107 for the test application. Do not run demo and integration tests in parallel: both rebuild `.next`.
 
-The integration script reads the public key from the local CLI, rejects remote URLs, and builds the application against the local stack. It does not save keys to the repository. Tests cover sign-up, email confirmation, application access, sign-out, sign-in, password recovery, and independent sessions for two accounts. Emails go only to the local mailbox.
+The integration script reads the public key from the local CLI, rejects remote URLs, and builds the application against the local stack. It does not save keys to the repository. Tests cover auth and independent sessions; domain integration scenarios extend this suite. Emails go only to the local mailbox.
 
 `npm run db:reset` deletes **local** data and reapplies migrations. Do not use it for a normal start; tests create unique accounts. After integration tests, `npm run test:e2e` rebuilds the application without Supabase configuration. Local email rate limits are increased only for tests.
 
-The callback supports PKCE code and token_hash. Only `/app` and `/auth/update-password` are accepted redirect targets. Expired or invalid links lead to an error message on the sign-in screen.
+The callback supports PKCE code and token_hash. Only allowlisted local application paths are accepted as redirect targets. Expired or invalid links lead to an error message on the sign-in screen.
 
 ## Domain tables
 
-When adding a feature that needs a database, save its schema and RLS as a new migration. Before deployment, check `npx supabase db push --dry-run` for the correct project. Test RLS with two accounts in the local stack. The starter does not delete tables from previously configured databases.
+Before deployment, run `npx supabase db push --dry-run` against the intended project, review every migration, and test RLS with candidate, employer, other-organization, operator, and anonymous sessions. Never use `db reset` against a remote or production project.

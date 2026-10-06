@@ -12,30 +12,38 @@ import { Label } from "@/components/ui/label";
 export type AuthMode = "sign-in" | "sign-up" | "forgot-password" | "update-password";
 const copy = {
   "sign-in": {
-    title: "Welcome back.",
-    description: "Sign in to your application.",
-    action: "Sign in",
+    title: "Wracamy do roboty.",
+    description: "Zaloguj się do swojej strefy.",
+    action: "Zaloguj się",
   },
   "sign-up": {
-    title: "Start with an idea.",
-    description: "Create an account to access the application.",
-    action: "Create account",
+    title: "Zacznij od konkretu.",
+    description: "Załóż konto kandydata w DoRoboty.ai.",
+    action: "Załóż konto",
   },
   "forgot-password": {
-    title: "Recover access.",
-    description: "We will send you a link to set a new password.",
-    action: "Send link",
+    title: "Odzyskaj dostęp.",
+    description: "Wyślemy link do ustawienia nowego hasła.",
+    action: "Wyślij link",
   },
   "update-password": {
-    title: "Set a new password.",
-    description: "Choose a password with at least 8 characters.",
-    action: "Save password",
+    title: "Ustaw nowe hasło.",
+    description: "Wybierz hasło z co najmniej 8 znakami.",
+    action: "Zapisz hasło",
   },
 };
-export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkError?: boolean }) {
+export function AuthForm({
+  mode,
+  linkError = false,
+  nextPath = "/app",
+}: {
+  mode: AuthMode;
+  linkError?: boolean;
+  nextPath?: string;
+}) {
   const [message, setMessage] = useState("");
   const schema = z.object({
-    email: mode === "update-password" ? z.string() : z.email("Enter a valid email address."),
+    email: mode === "update-password" ? z.string() : z.email("Podaj prawidłowy adres e-mail."),
     password:
       mode === "forgot-password"
         ? z.string()
@@ -43,7 +51,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
             .string()
             .min(
               mode === "sign-in" ? 1 : 8,
-              "Enter a password — at least 8 characters for a new account.",
+              "Podaj hasło — dla nowego konta co najmniej 8 znaków.",
             ),
   });
   const {
@@ -64,17 +72,16 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
       if (mode === "sign-in") {
         const { error } = await client.auth.signInWithPassword(values);
         if (error) throw error;
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Clear the auth-bound router cache after changing session cookies.
-        window.location.assign("/app");
+        window.location.assign(nextPath);
       }
       if (mode === "sign-up") {
         const { error } = await client.auth.signUp({
           ...values,
-          options: { emailRedirectTo: `${callback}?next=/app` },
+          options: { emailRedirectTo: `${callback}?next=${encodeURIComponent(nextPath)}` },
         });
         if (error) throw error;
         setMessage(
-          "Check your inbox. If sign-up requires confirmation, you will find an activation link there. You can sign in after confirming your email.",
+          "Sprawdź skrzynkę. Jeśli konto wymaga potwierdzenia, znajdziesz tam link aktywacyjny.",
         );
       }
       if (mode === "forgot-password") {
@@ -83,28 +90,27 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
         });
         if (error) throw error;
         setMessage(
-          "If the account exists, we will send an email with a password reset link. Check your spam folder too.",
+          "Jeśli konto istnieje, wyślemy wiadomość z linkiem do zmiany hasła. Sprawdź też spam.",
         );
       }
       if (mode === "update-password") {
         const { error } = await client.auth.updateUser({ password: values.password });
         if (error) throw error;
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Clear the auth-bound router cache after changing session cookies.
-        window.location.assign("/app");
+        window.location.assign(nextPath);
       }
     } catch {
       setError("root", {
         message:
           mode === "sign-in"
-            ? "Unable to sign in. Check your email, password, and email confirmation."
-            : "Unable to complete this action. Check your connection and try again shortly.",
+            ? "Nie udało się zalogować. Sprawdź e-mail, hasło i potwierdzenie konta."
+            : "Nie udało się wykonać tej operacji. Spróbuj ponownie za chwilę.",
       });
     }
   }
   return (
     <main className="auth-layout">
       <div className="auth-aside">
-        <Link href="/demo" className="brand">
+        <Link href="/" className="brand">
           <span className="brand-mark">
             <Sparkles size={18} />
           </span>
@@ -112,31 +118,32 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
         </Link>
         <div>
           <h2>
-            An idea is
-            <br />a good start.
+            Pokaż,
+            <br />
+            co dowozisz.
           </h2>
-          <p>Make room for what you want to build.</p>
+          <p>Liczy się doświadczenie, decyzja i wynik.</p>
         </div>
-        <span>Your space to create.</span>
+        <span>DoRoboty.ai</span>
       </div>
       <div className="auth-content">
-        <Link href="/demo" className="text-link">
+        <Link href="/" className="text-link">
           <ArrowLeft size={16} />
-          Back to demo
+          Wróć do ofert
         </Link>
         <div className="auth-form">
           <h1>{copy[mode].title}</h1>
           <p className="lede">{copy[mode].description}</p>
           {linkError && (
             <p role="alert" className="error-message mb-6">
-              This link is invalid or has expired. Request a new link or sign in.
+              Ten link jest nieprawidłowy albo wygasł. Poproś o nowy lub zaloguj się.
             </p>
           )}
           {message ? (
             <div role="status" className="success-panel">
               <p>{message}</p>
               <Link className="text-link mt-5" href="/auth/sign-in">
-                Go to sign-in <ArrowRight size={16} />
+                Przejdź do logowania <ArrowRight size={16} />
               </Link>
             </div>
           ) : (
@@ -162,7 +169,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
               )}
               {mode !== "forgot-password" && (
                 <div className="field">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Hasło</Label>
                   <Input
                     id="password"
                     type="password"
@@ -184,7 +191,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
                 </p>
               )}
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Please wait…" : copy[mode].action}
+                {isSubmitting ? "Chwila…" : copy[mode].action}
                 <ArrowRight size={16} />
               </Button>
             </form>
@@ -192,11 +199,11 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
           <div className="auth-links">
             {mode === "sign-in" ? (
               <>
-                <Link href="/auth/forgot-password">Forgot password</Link>
-                <Link href="/auth/sign-up">Create account</Link>
+                <Link href="/auth/forgot-password">Nie pamiętam hasła</Link>
+                <Link href="/auth/sign-up">Załóż konto</Link>
               </>
             ) : (
-              <Link href="/auth/sign-in">I already have an account</Link>
+              <Link href="/auth/sign-in">Mam już konto</Link>
             )}
           </div>
         </div>

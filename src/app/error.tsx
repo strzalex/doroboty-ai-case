@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 export default function ErrorPage({ reset }: { reset: () => void }) {
   return (
     <main className="standalone">
-      <h1>Something went wrong.</h1>
-      <p className="lede">Unable to load this page. Your saved data has not been changed.</p>
-      <Button onClick={reset}>Try again</Button>
+      <h1>Coś poszło nie tak.</h1>
+      <p className="lede">
+        Nie udało się wczytać strony. Żadne zapisane dane nie zostały zmienione.
+      </p>
+      <Button onClick={reset}>Spróbuj ponownie</Button>
     </main>
   );
 }

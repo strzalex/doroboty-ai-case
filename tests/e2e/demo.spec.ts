@@ -93,7 +93,7 @@ test("missing configuration and stale data do not affect the demo", async ({ pag
   await expect(page.locator("tbody tr")).toHaveCount(10);
   expect(await page.evaluate(() => localStorage.getItem("doroboty.projects.v1"))).toBe("corrupted");
   await page.goto("/demo/projects/old-id");
-  await expect(page.getByRole("heading", { name: "Page not found." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Nie znaleźliśmy tej strony." })).toBeVisible();
 });
 
 for (const width of [320, 375, 414, 768, 1440]) {

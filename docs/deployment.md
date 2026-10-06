@@ -12,16 +12,18 @@ CI runs without production secrets and uses the minimum `contents: read` permiss
 
 1. Import the repository into Vercel. Select Next.js, Node 24, `npm run build` as the build command, and `npm ci` as the install command.
 2. For the initial demo deployment, leave Supabase variables empty. The build must work without them.
-3. For production, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Configure auth using the [Supabase instructions](supabase.md).
+3. For production, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Configure auth using the [Supabase instructions](supabase.md). Never add a Supabase secret/service-role key to this application.
 4. For Preview, use a **separate Supabase project** and separate variables. You can also keep previews in demo mode. Do not copy production databases or secrets into pull requests.
-5. Configure callback URLs separately for each environment. Next.js public variables are embedded at build time; changing them requires a new deployment.
-6. The Vercel integration creates a preview for each pull request. Deploy production after merging into a protected `main` with passing CI. The branch protection described above is part of this setup.
+5. Configure callback URLs separately for each environment. Set `NEXT_PUBLIC_SITE_URL` to the canonical deployment. Public variables are embedded at build time; changing them requires a new deployment.
+6. To enable product analytics, set `POSTHOG_PROJECT_KEY`, `POSTHOG_HOST=https://eu.i.posthog.com`, and a long random `ANALYTICS_SALT`. Missing analytics configuration is an intentional no-op. Session replay is not installed.
+7. AI defaults to the deterministic course provider. To use an approved provider, set `AI_PROVIDER=openai-compatible`, `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`. Configure spend limits with the provider and verify timeout/quota behavior first.
+8. The Vercel integration creates a preview for each pull request. Protect previews containing unlocked case data with Vercel Authentication. Deploy production after merging into a protected `main` with passing CI.
 
 ## Verifying a deployment
 
-Open the demo and check the mobile layout. Create a test account, confirm its email, and verify dashboard access after signing in again. Complete password recovery on the target domain. Check Vercel logs and SMTP delivery. Do not log passwords or tokens.
+Browse and filter jobs at 320px and desktop widths. Create a candidate account, complete a synthetic profile, submit an application, then verify an employer can review only its organization. Confirm password recovery, operator release controls, AI safe failure, PostHog event properties, and no future-stage evidence. Check Vercel logs and SMTP delivery. Do not log passwords, tokens, prompts, or free text.
 
-The starter does not include external monitoring or a backup guarantee. Before collecting important data, configure database backups for your Supabase plan and verify the recovery procedure.
+Before collecting important data, configure Supabase backups and Vercel monitoring, verify restore on a non-production project, and record the active case release.
 
 ## Rollback
 

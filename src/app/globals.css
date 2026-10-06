@@ -10,6 +10,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
+  --font-ui: var(--font-interface);
   --font-mono: var(--font-code);
   --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -59,5 +60,11 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: var(--secondary);
+    color: var(--foreground);
   }
 }

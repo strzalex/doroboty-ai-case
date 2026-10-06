@@ -14,7 +14,7 @@ signals needed for a hiring decision.
 
 1. Read [`BRIEF.md`](BRIEF.md).
 2. Read [`docs/case/CASE_PROTOCOL.md`](docs/case/CASE_PROTOCOL.md).
-3. Follow [`TODO.md`](TODO.md) in milestone order.
+3. Follow the sprint order in [`TODO.md`](TODO.md).
 4. Use the preserved source material under [`docs/source/`](docs/source/).
 
 ## Local development
@@ -26,9 +26,7 @@ npm ci
 npm run dev
 ```
 
-The inherited static demo is available at `http://localhost:3000/demo` until the first
-case-specific product slice replaces it. Supabase Auth and integration tests are
-documented in [`docs/supabase.md`](docs/supabase.md).
+The public marketplace works with deterministic fixtures when Supabase is absent. Authenticated candidate, employer, AI, and instructor workflows require Supabase and never silently fall back after it is configured. See the [participant guide](docs/PARTICIPANT_GUIDE.md) and [Supabase runbook](docs/supabase.md).
 
 ## Verification
 
@@ -37,3 +35,5 @@ documented in [`docs/supabase.md`](docs/supabase.md).
 ```
 
 The project uses the agentic harness documented in [`AGENTS.md`](AGENTS.md).
+
+The instructor release model, synthetic data dictionary, discovery packet, real-person test, pilot, and Demo Day runbooks are under [`docs/case/`](docs/case/).
