@@ -57,7 +57,7 @@ export function AppShell({
           <span className="brand-mark">
             <Sparkles size={18} />
           </span>
-          superstarter<span className="text-primary">.</span>
+          DoRoboty<span className="text-primary">.ai</span>
         </Link>
         <Button
           variant="ghost"
@@ -75,7 +75,7 @@ export function AppShell({
           <span className="brand-mark">
             <Sparkles size={18} />
           </span>
-          superstarter<span className="text-primary">.</span>
+          DoRoboty<span className="text-primary">.ai</span>
         </Link>
         <div className="workspace-label">
           <span className="workspace-avatar">S</span>
@@ -121,7 +121,7 @@ export function AppShell({
             </>
           )}
           <div className="sidebar-credit">
-            Superstarter <span>v0.1</span>
+            DoRoboty.ai <span>case</span>
           </div>
         </div>
       </aside>

@@ -22,7 +22,7 @@ test("table: search, filters, selection, pagination, and no persistence", async 
   await expect(page.locator("tbody tr")).toHaveCount(10);
   await page.reload();
   await expect(page.getByRole("status")).toHaveText("Selected 0 of 16 documents");
-  expect(await page.evaluate(() => localStorage.getItem("superstarter.projects.v1"))).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem("doroboty.projects.v1"))).toBeNull();
   expect(remoteRequests).toEqual([]);
 });
 
@@ -88,12 +88,10 @@ test("missing configuration and stale data do not affect the demo", async ({ pag
   await page.goto("/app");
   await expect(page.getByRole("heading", { name: "Connect your database." })).toBeVisible();
   await page.goto("/demo");
-  await page.evaluate(() => localStorage.setItem("superstarter.projects.v1", "corrupted"));
+  await page.evaluate(() => localStorage.setItem("doroboty.projects.v1", "corrupted"));
   await page.reload();
   await expect(page.locator("tbody tr")).toHaveCount(10);
-  expect(await page.evaluate(() => localStorage.getItem("superstarter.projects.v1"))).toBe(
-    "corrupted",
-  );
+  expect(await page.evaluate(() => localStorage.getItem("doroboty.projects.v1"))).toBe("corrupted");
   await page.goto("/demo/projects/old-id");
   await expect(page.getByRole("heading", { name: "Page not found." })).toBeVisible();
 });

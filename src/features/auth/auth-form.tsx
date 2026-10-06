@@ -108,7 +108,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
           <span className="brand-mark">
             <Sparkles size={18} />
           </span>
-          superstarter.
+          DoRoboty.ai
         </Link>
         <div>
           <h2>

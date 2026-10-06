@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "usage: $0 <run-name>" >&2
+  exit 2
+fi
+
+name="$1"
+slug="$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd "$script_dir/../.." && pwd)"
+cd "$root"
+
+run_dir=".agent/ralph/runs/$slug"
+mkdir -p "$run_dir"
+
+if [[ ! -f "$run_dir/prd.json" ]]; then
+  jq -n \
+    --arg title "$name" \
+    --arg branch "task/$slug" \
+    --arg date "$(date +%F)" \
+    '{
+      title: $title,
+      branchName: $branch,
+      createdAt: $date,
+      stories: [
+        {
+          id: "story-001",
+          title: "Replace this with the first small story",
+          status: "todo",
+          priority: 1,
+          acceptanceCriteria: [
+            "Implementation is complete",
+            "Relevant tests/checks pass",
+            "./scripts/verify passes"
+          ]
+        }
+      ]
+    }' > "$run_dir/prd.json"
+fi
+
+touch "$run_dir/progress.txt"
+echo "$run_dir"

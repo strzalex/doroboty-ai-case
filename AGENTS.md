@@ -1,8 +1,33 @@
-# Working on Superstarter
+# Working on DoRoboty.ai Case
+
+This repository is the AIPH3 teaching application, not the public DoRoboty.ai production site.
+Read `BRIEF.md`, `docs/case/CASE_PROTOCOL.md`, and `TODO.md` before planning product work.
+
+## Agentic Workflow
+
+For anything larger than a one-line change:
+
+1. Capture intent in `BRIEF.md`, `TODO.md`, `docs/prds/`, or `docs/tasks/`.
+2. Work in a task branch or worktree.
+3. Implement against explicit acceptance criteria.
+4. Run `./scripts/verify` before claiming completion.
+5. Use a separate review pass before merging.
+6. Record durable project lessons in `docs/learnings/` when needed.
+
+Do not let multiple agents write in the same worktree.
+
+Useful commands:
+
+- `./scripts/bootstrap` prepares local tooling and validates the harness.
+- `./scripts/verify` runs the project health check.
+- `./scripts/agent/new-task <name>` creates a task worktree and task note.
+- `./scripts/agent/new-ralph-run <name>` creates a Ralph run folder.
+- `./scripts/agent/run-ralph <name> [claude|amp] [iterations]` runs the real Ralph loop.
 
 ## Standards
 
-- Write all repository content, UI text, documentation, comments, code identifiers, and commit messages in English.
+- Write code identifiers, authored documentation, comments, and commit messages in English.
+  End-user UI is Polish. Preserve Polish wording in canonical AIPH3 source material.
 - Use npm and Node 24; maintain package-lock.json. Do not add a second package manager.
 - Use the existing shadcn/ui (Base UI) components, tokens, and form pattern. Current components use `render`, not Radix's `asChild`.
 - Place new features in src/features; pages compose features, and src/components/ui holds shared primitives.
@@ -20,6 +45,12 @@
 - Integration tests use only local Supabase. Never reset a cloud database to run a test.
 - Check the UI on mobile and desktop, including error states and keyboard support. Prefer behavior tests over tests that mirror the implementation.
 - Report what was actually verified. A passing local build does not prove that CI or deployment works.
+
+## Definition Of Done
+
+Do not claim completion unless acceptance criteria are satisfied or explicitly deferred,
+relevant checks have run, `./scripts/verify` passes or its failures are clearly explained,
+and review findings are resolved or explicitly deferred.
 
 ## Extending the starter
 

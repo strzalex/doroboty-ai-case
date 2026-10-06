@@ -1,40 +1,39 @@
-# Superstarter
+# DoRoboty.ai — AIPH3 case application
 
-![Superstarter — a rocket in a construction hangar](docs/assets/superstarter-cover.png)
+DoRoboty.ai is the prepared spanning-case application for AI Product Heroes 3. It is a
+separate teaching environment built from
+[Superstarter](https://github.com/superhero-tech/superstarter), not the public
+DoRoboty.ai production portal.
 
-An application starter for working with Codex: Next.js, shadcn/ui on Base UI, Supabase Auth, and automated quality checks.
+Participants use the same product story across the program: diagnose why more job
+applications do not create more useful recruiting conversations, prototype AI writing
+assistance, measure the result, and discover when polished text stops carrying the
+signals needed for a hiring decision.
 
-## Demo preview
+## Start here
 
-![Superstarter demo dashboard with metric cards, a visitor chart, and a document table](docs/assets/superstarter-demo.png)
+1. Read [`BRIEF.md`](BRIEF.md).
+2. Read [`docs/case/CASE_PROTOCOL.md`](docs/case/CASE_PROTOCOL.md).
+3. Follow [`TODO.md`](TODO.md) in milestone order.
+4. Use the preserved source material under [`docs/source/`](docs/source/).
 
-## Getting started
+## Local development
 
-Node.js 24 and npm:
+Requirements: Node.js 24 and npm.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open [localhost:3000/demo](http://localhost:3000/demo). The demo runs without secrets, Supabase, or Docker. It includes a dashboard with metric cards, a chart, and a document table, inspired by [shadcn/ui dashboard-01](https://ui.shadcn.com/blocks). Data is static; filters, selection, and pagination use in-memory page state.
+The inherited static demo is available at `http://localhost:3000/demo` until the first
+case-specific product slice replaces it. Supabase Auth and integration tests are
+documented in [`docs/supabase.md`](docs/supabase.md).
 
-## What's included
+## Verification
 
-- Next.js App Router, React, TypeScript, and npm with `package-lock.json`.
-- shadcn/ui on Base UI with the b0 preset: Nova, Neutral, local Inter, and Lucide; Tailwind CSS.
-- Light, dark, and system themes, responsive navigation, and a `/components` gallery with a React Hook Form and Zod example.
-- A separate `/app` with Supabase Auth: sign-up, email confirmation, sign-in, password recovery, and sign-out.
-- Vitest, Playwright, and GitHub Actions configuration.
+```sh
+./scripts/verify
+```
 
-The starter does not include domain tables, project migrations, or CRUD. After sign-in, `/app` shows the same sample dashboard; demo data is never sent to Supabase. Missing or failed configuration never switches the application to demo mode.
-
-## Development
-
-Features live in `src/features`, shared components in `src/components`, and tokens in `tokens.css`. All repository content, UI text, documentation, comments, and commit messages must be in English. See `AGENTS.md` for development rules.
-
-`npm run format` formats the code. `npm run check` verifies formatting, lint, types, unit tests, the production build, and demo E2E tests. Auth integration tests require local Supabase running in Docker. After publishing the repository, configure required CI checks and hosting.
-
-- [Supabase setup and auth tests](docs/supabase.md)
-- [Deployment on Vercel](docs/deployment.md)
-- [Architecture and adding features](docs/architecture.md)
+The project uses the agentic harness documented in [`AGENTS.md`](AGENTS.md).

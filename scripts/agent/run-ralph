@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "usage: $0 <run-name> [claude|amp] [iterations]" >&2
+  exit 2
+fi
+
+name="$1"
+tool="${2:-claude}"
+iterations="${3:-5}"
+slug="$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd "$script_dir/../.." && pwd)"
+cd "$root"
+
+run_dir=".agent/ralph/runs/$slug"
+if [[ ! -f "$run_dir/prd.json" ]]; then
+  echo "missing $run_dir/prd.json; run ./scripts/agent/new-ralph-run $slug first" >&2
+  exit 1
+fi
+
+if [[ -e "$run_dir/.running" ]]; then
+  echo "Ralph run already locked: $run_dir/.running" >&2
+  exit 1
+fi
+
+dirty_outside_run="$(
+  git status --porcelain | awk -v prefix="$run_dir/" '
+    {
+      path = substr($0, 4)
+      if (path != prefix && index(path, prefix) != 1) {
+        print
+      }
+    }'
+)"
+
+if [[ -n "$dirty_outside_run" ]]; then
+  echo "git worktree has dirty files outside $run_dir; commit/stash or set ALLOW_DIRTY_RALPH=1" >&2
+  echo "$dirty_outside_run" >&2
+  if [[ "${ALLOW_DIRTY_RALPH:-0}" != "1" ]]; then
+    exit 1
+  fi
+fi
+
+command -v jq >/dev/null 2>&1 || { echo "missing jq" >&2; exit 1; }
+jq empty "$run_dir/prd.json"
+
+case "$tool" in
+  claude) command -v claude >/dev/null 2>&1 || { echo "missing claude CLI" >&2; exit 1; } ;;
+  amp) command -v amp >/dev/null 2>&1 || { echo "missing amp CLI" >&2; exit 1; } ;;
+  *) echo "tool must be claude or amp" >&2; exit 2 ;;
+esac
+
+if [[ ! -x .agent/ralph/vendor/ralph/ralph.sh ]]; then
+  ./scripts/agent/install-ralph
+fi
+
+cp .agent/ralph/vendor/ralph/ralph.sh "$run_dir/ralph.sh"
+cp .agent/ralph/vendor/ralph/prompt.md "$run_dir/prompt.md" 2>/dev/null || true
+cp .agent/ralph/vendor/ralph/CLAUDE.md "$run_dir/CLAUDE.md" 2>/dev/null || true
+chmod +x "$run_dir/ralph.sh"
+
+touch "$run_dir/.running"
+trap 'rm -f "$run_dir/.running"' EXIT
+
+(
+  cd "$run_dir"
+  ./ralph.sh --tool "$tool" "$iterations"
+)

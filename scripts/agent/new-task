@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "usage: $0 <task-name>" >&2
+  exit 2
+fi
+
+name="$1"
+slug="$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd "$script_dir/../.." && pwd)"
+repo="$(basename "$root")"
+base="${AGENT_BASE_BRANCH:-origin/main}"
+
+cd "$root"
+git fetch origin >/dev/null 2>&1 || true
+
+if ! git rev-parse --verify "$base" >/dev/null 2>&1; then
+  if git rev-parse --verify main >/dev/null 2>&1; then
+    base="main"
+  else
+    base="HEAD"
+  fi
+fi
+
+target="../worktrees/${repo}-${slug}"
+branch="task/${slug}"
+
+if [[ -e "$target" ]]; then
+  echo "worktree already exists: $target" >&2
+  exit 1
+fi
+
+git worktree add "$target" -b "$branch" "$base"
+
+mkdir -p "$target/docs/tasks"
+task_file="$target/docs/tasks/${slug}.md"
+if [[ -f "$target/docs/templates/TASK.md" ]]; then
+  cp "$target/docs/templates/TASK.md" "$task_file"
+else
+  touch "$task_file"
+fi
+
+perl -0pi -e "s/__TASK_NAME__/$name/g; s/__TASK_SLUG__/$slug/g; s/2026\-10\-06/$(date +%F)/g" "$task_file"
+
+echo "$target"

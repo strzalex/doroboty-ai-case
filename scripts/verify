@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd "$script_dir/.." && pwd)"
+cd "$root"
+
+echo "== harness =="
+test -f AGENTS.md
+test -f CLAUDE.md
+test -f justfile
+test -d docs/prds
+test -d docs/tasks
+test -d docs/learnings
+test -d .claude/commands
+test -d .claude/agents
+
+if command -v jq >/dev/null 2>&1; then
+  jq empty .claude/settings.json
+  find .agent/ralph/runs -name prd.json -print0 2>/dev/null | while IFS= read -r -d '' file; do
+    jq empty "$file"
+  done
+fi
+
+echo "== project checks =="
+
+if [[ -f package.json ]] && command -v npm >/dev/null 2>&1; then
+  npm run lint --if-present
+  npm run test --if-present
+  npm run build --if-present
+fi
+
+if [[ -f pyproject.toml ]] && command -v python >/dev/null 2>&1; then
+  if python -c "import pytest" >/dev/null 2>&1; then
+    python -m pytest
+  fi
+fi
+
+echo "verify complete"

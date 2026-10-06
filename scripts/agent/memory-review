@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd "$script_dir/../.." && pwd)"
+cd "$root"
+
+mkdir -p .agent/runs docs/learnings
+out=".agent/runs/memory-review-$(date +%F-%H%M%S).md"
+
+{
+  echo "# Memory Review"
+  echo
+  echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo
+  echo "## Recent Learnings"
+  find docs/learnings -type f -name '*.md' -maxdepth 1 -print | sort | tail -20 | sed 's/^/- /'
+  echo
+  echo "## Recent Task/PRD Files"
+  find docs/tasks docs/prds -type f -name '*.md' -maxdepth 1 -print 2>/dev/null | sort | tail -20 | sed 's/^/- /'
+  echo
+  echo "## Git Summary"
+  git log --oneline -10 2>/dev/null || true
+  echo
+  echo "## Promotion Draft"
+  echo
+  echo "- Keep local:"
+  echo "- Promote to project docs/rules:"
+  echo "- Propose for template:"
+  echo "- Propose for global memory:"
+  echo "- Discard:"
+} > "$out"
+
+echo "$out"
