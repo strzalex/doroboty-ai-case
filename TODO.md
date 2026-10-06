@@ -56,7 +56,7 @@ invariants, and anti-spoiler rules are in
 - [x] **M0-09** Make `./scripts/bootstrap`, `./scripts/verify`, and CI pass from a clean clone.
 - [x] **M0-10** Review and resolve dependency audit findings without applying unsafe forced
       upgrades.
-- [ ] **M0-11** Configure GitHub branch protection and required checks for the fork.
+- [x] **M0-11** Configure GitHub branch protection and required checks for the fork.
 
 ### M0 Definition of Done
 
