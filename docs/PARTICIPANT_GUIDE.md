@@ -2,6 +2,9 @@
 
 This guide takes a clean checkout to a shareable course deployment without relying on instructor chat history.
 
+Instructor operations, reset, release, and recovery are documented separately in
+[`case/INSTRUCTOR_RUNBOOK.md`](case/INSTRUCTOR_RUNBOOK.md).
+
 ## What you receive
 
 - a participant repository or release archive containing only the currently unlocked stage;

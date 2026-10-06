@@ -127,8 +127,8 @@ function ApprovalForm({ state }: { state: ApprovedDraftState }) {
         />
       </div>
       <p className="text-sm">
-        Zatwierdzenie zapisze nową, prywatną wersję i zaktualizuje roboczy tekst oferty. Publikacja
-        pozostaje osobną decyzją.
+        Zatwierdzenie zapisze nową, prywatną wersję. Nie zmieni opublikowanej oferty — publikacja
+        pozostaje osobną decyzją operatora.
       </p>
       <Button type="submit" disabled={pending}>
         {pending ? "Zatwierdzam…" : "Zatwierdź wersję"}

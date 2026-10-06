@@ -311,6 +311,25 @@ test("experiment assignment is stable and exposure is idempotent", async () => {
   expect(exposureA.error).toBeNull();
   expect(exposureB.data).toBe(exposureA.data);
 });
+
+test("future AI assignments cannot be exposed before their release", async () => {
+  const candidate = await fixtureClient("candidate@doroboty.local");
+  const future = await candidate
+    .from("experiment_assignments")
+    .select("id")
+    .eq("surface", "candidate_answer")
+    .eq("release_key", "post_ai")
+    .single();
+  expect(future.error).toBeNull();
+  const exposure = await candidate.rpc("record_experiment_exposure", {
+    target_assignment_id: future.data!.id,
+    target_application_id: null,
+  });
+  expect(exposure.error).not.toBeNull();
+  expect((await candidate.rpc("can_use_ai", { target_surface: "candidate_answer" })).data).toBe(
+    false,
+  );
+});
 test("invalid confirmation links do not redirect outside the application", async ({ page }) => {
   await page.goto("/auth/callback?token_hash=invalid&type=signup&next=https://example.com");
   await expect(page).toHaveURL(/127.0.0.1:3107\/auth\/sign-in\?error=link/);
@@ -345,6 +364,15 @@ test("candidate application and employer first-conversation decision work end to
   await page.getByLabel("Mierzalny efekt (opcjonalnie)").fill("Czas obsługi spadł o 20 procent.");
   await page.getByRole("button", { name: "Dodaj doświadczenie" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Doświadczenie dodane." })).toBeVisible();
+
+  await page.getByLabel("Tytuł", { exact: true }).fill("Mapa procesu i prototyp");
+  await page.getByLabel("Link HTTPS (opcjonalnie)").fill("https://example.com/work-sample");
+  await page.getByLabel("Kontekst", { exact: true }).fill("Proces finansowy wymagał discovery.");
+  await page
+    .getByLabel("Wynik", { exact: true })
+    .fill("Prototyp obniżył czas obsługi o 20 procent.");
+  await page.getByRole("button", { name: "Dodaj próbkę" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Próbka pracy dodana." })).toBeVisible();
 
   await page.goto("/aplikuj/ai-product-manager");
   await expect(page.getByText("Wariant: zapisany profil", { exact: true })).toBeVisible();
@@ -412,6 +440,28 @@ test("candidate and employer core flows meet automated WCAG A and AA", async ({ 
   ).toEqual([]);
 });
 
+test("a new employer can create an isolated organization through onboarding", async ({ page }) => {
+  await page.goto("/auth/sign-in");
+  await page.getByLabel("Email", { exact: true }).fill("employer-new@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/app/organizacja");
+  await page.getByLabel("Nazwa firmy").fill("Rehearsal Org");
+  await page.getByLabel("Slug (małe litery i myślniki)").fill("rehearsal-org");
+  await page
+    .getByLabel("Krótkie podsumowanie")
+    .fill("Syntetyczna organizacja do próby case study.");
+  await page
+    .getByLabel("Opis", { exact: true })
+    .fill("Izolowana organizacja używana wyłącznie do testu procesu uczestnika.");
+  await page.getByLabel("Strona HTTPS").fill("https://example.com/rehearsal");
+  await page.getByLabel("Lokalizacja").fill("Warszawa");
+  await page.getByLabel("Wielkość, np. 11–50 osób").fill("11–50 osób");
+  await page.getByRole("button", { name: "Utwórz organizację" }).click();
+  await expect(page.getByRole("heading", { name: "Rehearsal Org" })).toBeVisible();
+});
+
 test("only an operator can inspect and release every case stage", async ({ page }) => {
   await page.goto("/auth/sign-in");
   await page.getByLabel("Email", { exact: true }).fill("operator@doroboty.local");
@@ -421,7 +471,73 @@ test("only an operator can inspect and release every case stage", async ({ page 
   await page.goto("/app/case?release=post_ai");
   await expect(page.getByRole("heading", { name: "Case releases" })).toBeVisible();
   await expect(page.getByText(/Materiał późniejszego etapu/)).toBeVisible();
-  await page.getByLabel("Aktywny etap").selectOption("demo_day");
-  await page.getByRole("button", { name: "Ustaw i ukryj późniejsze etapy" }).click();
-  await expect(page.getByLabel("Aktywny etap")).toHaveValue("demo_day");
+  for (const release of [
+    "baseline",
+    "post_one_click",
+    "discovery",
+    "post_ai",
+    "pilot",
+    "demo_day",
+  ]) {
+    await page.getByLabel("Aktywny etap").selectOption(release);
+    await page.getByRole("button", { name: "Ustaw i ukryj późniejsze etapy" }).click();
+    await expect(page.getByLabel("Aktywny etap")).toHaveValue(release);
+  }
+});
+
+test("candidate and employer AI drafts require approval and preserve public source truth", async ({
+  page,
+}) => {
+  const candidate = await fixtureClient("candidate@doroboty.local");
+  const candidateApplicationsBefore = await candidate
+    .from("applications")
+    .select("id", { count: "exact", head: true })
+    .eq("job_id", "20000000-0000-4000-8000-000000000004");
+
+  await page.goto("/auth/sign-in");
+  await page.getByLabel("Email", { exact: true }).fill("candidate@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/aplikuj/ai-operations-specialist");
+  await page.getByRole("button", { name: "Przygotuj szkic z AI" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Szkic gotowy." })).toBeVisible();
+  await expect(page.getByLabel("Dlaczego pasujesz do tej roli?")).not.toHaveValue("");
+  const candidateApplicationsAfter = await candidate
+    .from("applications")
+    .select("id", { count: "exact", head: true })
+    .eq("job_id", "20000000-0000-4000-8000-000000000004");
+  expect(candidateApplicationsAfter.count).toBe(candidateApplicationsBefore.count);
+
+  await page.getByRole("button", { name: "Wyloguj się", exact: true }).click();
+  const employer = await fixtureClient("employer@doroboty.local");
+  const originalJob = await employer
+    .from("jobs")
+    .select("title")
+    .eq("id", "20000000-0000-4000-8000-000000000001")
+    .single();
+  await page.getByLabel("Email", { exact: true }).fill("employer@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/app/oferty");
+  await page.getByLabel("Oferta").selectOption({ label: "AI Product Manager" });
+  await page.getByRole("button", { name: "Wygeneruj szkic" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Szkic gotowy" })).toBeVisible();
+  await page.getByLabel("Tytuł", { exact: true }).fill("AI Product Manager — wersja prywatna");
+  await page.getByRole("button", { name: "Zatwierdź wersję" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Zatwierdzono wersję" })).toBeVisible();
+  const publicJobAfterApproval = await employer
+    .from("jobs")
+    .select("title")
+    .eq("id", "20000000-0000-4000-8000-000000000001")
+    .single();
+  expect(publicJobAfterApproval.data?.title).toBe(originalJob.data?.title);
+  const privateVersion = await employer
+    .from("job_text_versions")
+    .select("title, visibility")
+    .eq("job_id", "20000000-0000-4000-8000-000000000001")
+    .eq("title", "AI Product Manager — wersja prywatna")
+    .single();
+  expect(privateVersion.data?.visibility).toBe("private");
 });

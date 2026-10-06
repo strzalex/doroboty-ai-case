@@ -8,11 +8,14 @@ export async function authorizeAiTreatment(
   operator: boolean,
 ) {
   if (operator) return true;
+  const { data: activeRelease } = await client.rpc("current_case_release");
+  if (!activeRelease) return false;
   const { data: assignment } = await client
     .from("experiment_assignments")
     .select("id")
     .eq("surface", surface)
     .eq("variant", "ai_draft")
+    .eq("release_key", activeRelease)
     .order("assigned_at", { ascending: false })
     .limit(1)
     .maybeSingle();

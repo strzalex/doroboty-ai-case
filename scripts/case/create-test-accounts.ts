@@ -19,6 +19,7 @@ const fixtures = [
   { email: "candidate-longform@doroboty.local", role: "candidate" },
   { email: "employer@doroboty.local", role: "employer" },
   { email: "employer-other@doroboty.local", role: "employer" },
+  { email: "employer-new@doroboty.local", role: "employer" },
   { email: "operator@doroboty.local", role: "operator" },
 ] as const;
 
@@ -43,7 +44,7 @@ for (const fixture of fixtures) {
     .eq("id", user.id);
   if (profile.error) throw profile.error;
   users.set(fixture.email, user.id);
-  if (fixture.role === "employer") {
+  if (fixture.role === "employer" && fixture.email !== "employer-new@doroboty.local") {
     const membership = await admin.from("organization_memberships").upsert({
       organization_id:
         fixture.email === "employer-other@doroboty.local"
@@ -70,6 +71,24 @@ for (const [email, variant] of [
     { onConflict: "subject_key,surface,release_key" },
   );
   if (assignment.error) throw assignment.error;
+}
+
+for (const releaseKey of ["post_ai", "pilot", "demo_day"] as const) {
+  for (const [email, surface] of [
+    ["candidate@doroboty.local", "candidate_answer"],
+    ["employer@doroboty.local", "employer_job_copy"],
+  ] as const) {
+    const assignment = await admin.from("experiment_assignments").upsert(
+      {
+        subject_key: users.get(email)!,
+        surface,
+        variant: "ai_draft",
+        release_key: releaseKey,
+      },
+      { onConflict: "subject_key,surface,release_key" },
+    );
+    if (assignment.error) throw assignment.error;
+  }
 }
 
 console.log(`Local accounts ready. Password for all test fixtures: ${password}`);
