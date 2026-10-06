@@ -60,3 +60,7 @@ For each cohort, record:
 - backup/restore rehearsal date;
 - technical and non-technical rehearsal notes;
 - rollback owner and last known-good deployment.
+
+Use [`RELEASE_CANDIDATE.md`](RELEASE_CANDIDATE.md) for the current pre-release evidence. Replace
+its candidate values with the final cohort owners, tag, deployment, and rehearsal dates only after
+all release gates pass.
