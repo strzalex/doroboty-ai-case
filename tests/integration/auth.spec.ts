@@ -35,44 +35,42 @@ async function emailLink(address: string, type: "signup" | "recovery") {
     .toBe(true);
   return link;
 }
-test("rejestracja, potwierdzenie emaila, dashboard, logowanie i odzyskiwanie hasła", async ({
-  page,
-}) => {
+test("sign-up, email confirmation, dashboard, sign-in, and password recovery", async ({ page }) => {
   const email = `browser-${crypto.randomUUID()}@example.test`;
   await page.goto("/app");
   await expect(page).toHaveURL(/auth\/sign-in/);
-  await page.getByRole("link", { name: "Utwórz konto", exact: true }).click();
+  await page.getByRole("link", { name: "Create account", exact: true }).click();
   await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Hasło", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Utwórz konto", exact: true }).click();
-  await expect(page.getByRole("status")).toContainText("Sprawdź skrzynkę");
-  await page.getByRole("link", { name: "Przejdź do logowania" }).click();
-  await expect(page.getByRole("button", { name: "Zaloguj się", exact: true })).toBeVisible();
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Create account", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Check your inbox");
+  await page.getByRole("link", { name: "Go to sign-in" }).click();
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
   await page.goto(await emailLink(email, "signup"));
   await expect(page).toHaveURL(/\/app$/);
-  await expect(page.getByRole("heading", { name: "Dokumenty", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Documents", exact: true })).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(10);
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Dokumenty", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Wyloguj się", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Documents", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(page).toHaveURL(/sign-in/);
   await page.goto("/app");
   await expect(page).toHaveURL(/sign-in/);
   await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Hasło", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/app$/);
-  await page.getByRole("button", { name: "Wyloguj się", exact: true }).click();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(page).toHaveURL(/sign-in/);
-  await page.getByRole("link", { name: "Nie pamiętam hasła" }).click();
-  await expect(page.getByRole("heading", { name: "Nowy dostęp." })).toBeVisible();
+  await page.getByRole("link", { name: "Forgot password" }).click();
+  await expect(page.getByRole("heading", { name: "Recover access." })).toBeVisible();
   await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByRole("button", { name: "Wyślij link" }).click();
-  await expect(page.getByRole("status")).toContainText("Jeśli konto istnieje");
+  await page.getByRole("button", { name: "Send link" }).click();
+  await expect(page.getByRole("status")).toContainText("If the account exists");
   await page.goto(await emailLink(email, "recovery"));
   await expect(page).toHaveURL(/update-password/);
-  await page.getByLabel("Hasło", { exact: true }).fill(`${password}new`);
-  await page.getByRole("button", { name: "Zapisz hasło" }).click();
+  await page.getByLabel("Password", { exact: true }).fill(`${password}new`);
+  await page.getByRole("button", { name: "Save password" }).click();
   await expect(page).toHaveURL(/\/app$/);
   const verifier = createClient(api, key, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -82,7 +80,7 @@ test("rejestracja, potwierdzenie emaila, dashboard, logowanie i odzyskiwanie has
     (await verifier.auth.signInWithPassword({ email, password: `${password}new` })).error,
   ).toBeNull();
 });
-test("sesje dwóch kont pozostają niezależne", async () => {
+test("sessions for two accounts remain independent", async () => {
   async function account() {
     const client = createClient(api, key, {
       auth: { persistSession: false, autoRefreshToken: false },
@@ -114,8 +112,8 @@ test("sesje dwóch kont pozostają niezależne", async () => {
   expect((await a.client.auth.getUser()).data.user).toBeNull();
   expect((await b.client.auth.getUser()).data.user?.id).toBe(b.id);
 });
-test("niepoprawny link potwierdzenia nie przekierowuje poza aplikację", async ({ page }) => {
+test("invalid confirmation links do not redirect outside the application", async ({ page }) => {
   await page.goto("/auth/callback?token_hash=invalid&type=signup&next=https://example.com");
   await expect(page).toHaveURL(/127.0.0.1:3107\/auth\/sign-in\?error=link/);
-  await expect(page.locator("main").getByRole("alert")).toContainText("wygasł");
+  await expect(page.locator("main").getByRole("alert")).toContainText("expired");
 });

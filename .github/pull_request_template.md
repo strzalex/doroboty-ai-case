@@ -1,11 +1,11 @@
-## Zmiana
+## Change
 
-Co było problemem i jak aplikacja zachowuje się teraz?
+What was the problem, and how does the application behave now?
 
-## Sprawdzenie
+## Validation
 
 - [ ] `npm run check`
-- [ ] `npm run test:integration` — jeśli zmiana dotyczy bazy lub auth
-- [ ] Widok mobilny i obsługa klawiaturą — jeśli zmiana dotyczy UI
+- [ ] `npm run test:integration` — for database or auth changes
+- [ ] Mobile layout and keyboard support — for UI changes
 
-Podaj wynik i ewentualne ograniczenia. Do zmiany schematu dołącz migrację.
+Describe the results and any limitations. Include a migration for schema changes.

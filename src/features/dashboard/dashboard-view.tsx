@@ -18,42 +18,42 @@ import { documents, visitorDays } from "./data";
 
 const metrics = [
   {
-    label: "Łączny przychód",
-    value: "5 250 zł",
-    change: "+12,5%",
-    title: "Wzrost w tym miesiącu",
-    detail: "Wynik z ostatnich 6 miesięcy",
+    label: "Total revenue",
+    value: "PLN 5,250",
+    change: "+12.5%",
+    title: "Growth this month",
+    detail: "Results from the last 6 months",
     up: true,
   },
   {
-    label: "Nowi klienci",
-    value: "1 234",
+    label: "New customers",
+    value: "1,234",
     change: "−20%",
-    title: "Spadek w tym okresie",
-    detail: "Pozyskiwanie wymaga uwagi",
+    title: "Decline this period",
+    detail: "Acquisition needs attention",
     up: false,
   },
   {
-    label: "Aktywne konta",
-    value: "45 678",
-    change: "+12,5%",
-    title: "Klienci wracają",
-    detail: "Zaangażowanie powyżej celu",
+    label: "Active accounts",
+    value: "45,678",
+    change: "+12.5%",
+    title: "Customers are returning",
+    detail: "Engagement above target",
     up: true,
   },
   {
-    label: "Tempo wzrostu",
-    value: "4,5%",
-    change: "+4,5%",
-    title: "Stabilny wzrost",
-    detail: "Zgodnie z prognozą",
+    label: "Growth rate",
+    value: "4.5%",
+    change: "+4.5%",
+    title: "Steady growth",
+    detail: "In line with the forecast",
     up: true,
   },
 ];
 const periods = [
-  { days: 90, label: "3 miesiące" },
-  { days: 30, label: "30 dni" },
-  { days: 7, label: "7 dni" },
+  { days: 90, label: "3 months" },
+  { days: 30, label: "30 days" },
+  { days: 7, label: "7 days" },
 ];
 
 function VisitorsChart() {
@@ -65,17 +65,17 @@ function VisitorsChart() {
       .map((point, index) => `${(index / (values.length - 1)) * 1000},${210 - point[key] / 2}`)
       .join(" ");
   const dateLabel = (date: string) =>
-    new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short", timeZone: "UTC" }).format(
+    new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short", timeZone: "UTC" }).format(
       new Date(date),
     );
   return (
     <section className="visitors-card" aria-labelledby="visitors-title">
       <div className="chart-heading">
         <div>
-          <h2 id="visitors-title">Odwiedzający</h2>
-          <p>Przykładowy ruch z ostatnich {days} dni</p>
+          <h2 id="visitors-title">Visitors</h2>
+          <p>Sample traffic over the last {days} days</p>
         </div>
-        <div className="period-picker" role="group" aria-label="Okres wykresu">
+        <div className="period-picker" role="group" aria-label="Chart period">
           {periods.map((period) => (
             <Button
               key={period.days}
@@ -94,7 +94,7 @@ function VisitorsChart() {
         viewBox="0 0 1000 220"
         preserveAspectRatio="none"
         role="img"
-        aria-label={`Przykładowy ruch na komputerach i telefonach z ostatnich ${days} dni`}
+        aria-label={`Sample traffic on desktop and mobile over the last ${days} days`}
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -147,11 +147,11 @@ function VisitorsChart() {
       <div className="chart-legend">
         <span>
           <i />
-          Komputery
+          Desktop
         </span>
         <span>
           <i />
-          Telefony
+          Mobile
         </span>
       </div>
     </section>
@@ -166,8 +166,8 @@ export function DashboardView() {
   const filtered = documents.filter(
     (document) =>
       document.title
-        .toLocaleLowerCase("pl-PL")
-        .includes(search.trim().toLocaleLowerCase("pl-PL")) &&
+        .toLocaleLowerCase("en-US")
+        .includes(search.trim().toLocaleLowerCase("en-US")) &&
       (status === "all" || document.status === status),
   );
   const pages = Math.max(1, Math.ceil(filtered.length / 10));
@@ -176,14 +176,14 @@ export function DashboardView() {
   return (
     <div className="dashboard">
       <div className="dashboard-heading">
-        <h1>Dokumenty</h1>
-        <Badge variant="outline">Przykładowe dane</Badge>
+        <h1>Documents</h1>
+        <Badge variant="outline">Sample data</Badge>
       </div>
-      <aside className="dashboard-info" aria-label="Informacja o demonstracji">
+      <aside className="dashboard-info" aria-label="Demo information">
         <Info size={20} aria-hidden="true" />
         <div>
-          <strong>To jest demonstracja.</strong>
-          <p>Dashboard pokazuje przykładowe dane. Możesz poprosić agenta o usunięcie tego demo.</p>
+          <strong>This is a demo.</strong>
+          <p>The dashboard uses sample data. You can ask the agent to remove this demo.</p>
         </div>
       </aside>
       <div className="metric-grid">
@@ -212,14 +212,14 @@ export function DashboardView() {
       <section aria-labelledby="documents-title" className="documents-section">
         <div className="table-toolbar">
           <h2 id="documents-title">
-            Spis dokumentów <Badge variant="secondary">{documents.length}</Badge>
+            Document list <Badge variant="secondary">{documents.length}</Badge>
           </h2>
           <div className="table-filters">
             <div className="search-field">
               <Search size={16} />
               <Input
-                aria-label="Szukaj dokumentów"
-                placeholder="Szukaj dokumentów…"
+                aria-label="Search documents"
+                placeholder="Search documents…"
                 value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
@@ -229,35 +229,33 @@ export function DashboardView() {
             </div>
             <select
               className="native-select filter-select"
-              aria-label="Filtruj po statusie"
+              aria-label="Filter by status"
               value={status}
               onChange={(event) => {
                 setStatus(event.target.value);
                 setPage(0);
               }}
             >
-              <option value="all">Wszystkie statusy</option>
-              <option value="progress">W trakcie</option>
-              <option value="done">Gotowe</option>
+              <option value="all">All statuses</option>
+              <option value="progress">In progress</option>
+              <option value="done">Done</option>
             </select>
           </div>
         </div>
         <div
           className="table-scroll"
           role="region"
-          aria-label="Tabela dokumentów — przewiń, aby zobaczyć wszystkie kolumny"
+          aria-label="Document table — scroll to see all columns"
           tabIndex={0}
         >
           <table className="documents-table">
-            <caption className="sr-only">
-              Przykładowe dokumenty, ich status i osoba sprawdzająca
-            </caption>
+            <caption className="sr-only">Sample documents, their status, and reviewer</caption>
             <thead>
               <tr>
                 <th scope="col">
                   <input
                     type="checkbox"
-                    aria-label="Zaznacz dokumenty na tej stronie"
+                    aria-label="Select documents on this page"
                     disabled={!visible.length}
                     checked={
                       visible.length > 0 &&
@@ -274,16 +272,16 @@ export function DashboardView() {
                     }
                   />
                 </th>
-                <th scope="col">Nazwa</th>
-                <th scope="col">Typ sekcji</th>
+                <th scope="col">Name</th>
+                <th scope="col">Section type</th>
                 <th scope="col">Status</th>
                 <th scope="col" className="numeric-cell">
-                  Cel
+                  Target
                 </th>
                 <th scope="col" className="numeric-cell">
                   Limit
                 </th>
-                <th scope="col">Sprawdza</th>
+                <th scope="col">Reviewer</th>
               </tr>
             </thead>
             <tbody>
@@ -292,7 +290,7 @@ export function DashboardView() {
                   <td>
                     <input
                       type="checkbox"
-                      aria-label={`Zaznacz: ${document.title}`}
+                      aria-label={`Select: ${document.title}`}
                       checked={selected.includes(document.id)}
                       onChange={(event) =>
                         setSelected(
@@ -314,7 +312,7 @@ export function DashboardView() {
                       ) : (
                         <CircleDashed />
                       )}
-                      {document.status === "done" ? "Gotowe" : "W trakcie"}
+                      {document.status === "done" ? "Done" : "In progress"}
                     </Badge>
                   </td>
                   <td className="numeric-cell">{document.target}</td>
@@ -326,8 +324,8 @@ export function DashboardView() {
           </table>
           {!visible.length && (
             <div className="table-empty">
-              <h3>Brak pasujących dokumentów</h3>
-              <p>Zmień wyszukiwanie lub status.</p>
+              <h3>No matching documents</h3>
+              <p>Change the search or status filter.</p>
               <Button
                 variant="outline"
                 onClick={() => {
@@ -336,23 +334,23 @@ export function DashboardView() {
                   setPage(0);
                 }}
               >
-                Wyczyść filtry
+                Clear filters
               </Button>
             </div>
           )}
         </div>
         <div className="table-footer">
           <p role="status">
-            Zaznaczono {selectedCount} z {filtered.length} dokumentów
+            Selected {selectedCount} of {filtered.length} documents
           </p>
           <div className="table-pagination">
             <span>
-              Strona {page + 1} z {pages}
+              Page {page + 1} of {pages}
             </span>
             <Button
               variant="outline"
               size="icon"
-              aria-label="Poprzednia strona"
+              aria-label="Previous page"
               disabled={page === 0}
               onClick={() => setPage(page - 1)}
             >
@@ -361,7 +359,7 @@ export function DashboardView() {
             <Button
               variant="outline"
               size="icon"
-              aria-label="Następna strona"
+              aria-label="Next page"
               disabled={page + 1 >= pages}
               onClick={() => setPage(page + 1)}
             >

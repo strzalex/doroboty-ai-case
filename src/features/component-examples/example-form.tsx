@@ -31,10 +31,8 @@ export function ExampleForm({ onClose, onValid }: { onClose: () => void; onValid
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Przykładowy formularz</DialogTitle>
-          <DialogDescription>
-            Sprawdź walidację. Dane nie są zapisywane ani wysyłane.
-          </DialogDescription>
+          <DialogTitle>Example form</DialogTitle>
+          <DialogDescription>Try form validation. No data is saved or sent.</DialogDescription>
         </DialogHeader>
         <form
           noValidate
@@ -45,7 +43,7 @@ export function ExampleForm({ onClose, onValid }: { onClose: () => void; onValid
           })}
         >
           <div className="field">
-            <Label htmlFor="example-name">Imię</Label>
+            <Label htmlFor="example-name">Name</Label>
             <Input
               id="example-name"
               autoFocus
@@ -76,9 +74,9 @@ export function ExampleForm({ onClose, onValid }: { onClose: () => void; onValid
           </div>
           <div className="form-actions">
             <Button type="button" variant="outline" onClick={onClose}>
-              Anuluj
+              Cancel
             </Button>
-            <Button type="submit">Sprawdź formularz</Button>
+            <Button type="submit">Validate form</Button>
           </div>
         </form>
       </DialogContent>

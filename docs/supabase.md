@@ -1,21 +1,21 @@
 # Supabase
 
-Demo działa bez Supabase i Dockera. Poniższe kroki włączają konta użytkowników. Dashboard nadal korzysta ze statycznych danych. Starter nie zawiera tabel domenowych ani migracji SQL.
+The demo runs without Supabase or Docker. The steps below enable user accounts. The dashboard continues to use static data. The starter contains no domain tables or SQL migrations.
 
-## Projekt w chmurze
+## Cloud project
 
-1. Utwórz projekt Supabase i skopiuj `.env.example` do `.env.local`.
-2. Wpisz URL i publishable key z panelu Connect. Legacy anon key również działa. **Nigdy service_role/secret key.**
-3. W Auth ustaw Site URL na adres aplikacji. W Redirect URLs dodaj jej `/auth/callback` wraz z parametrami: `/auth/callback?next=/app` i `/auth/callback?next=/auth/update-password`. Dla lokalnego developmentu użyj `http://localhost:3000` i analogicznych adresów.
-4. Włącz potwierdzanie emaila. Skopiuj treść plików `supabase/templates/confirmation.html` i `recovery.html` do odpowiednich szablonów Confirm signup oraz Reset password w panelu Auth. Nasze formularze zawsze ustawiają RedirectTo z parametrem next. Nie używaj tych szablonów w innych klientach bez tego parametru.
-5. Podłącz własny SMTP przed udostępnieniem aplikacji użytkownikom i sprawdź dostarczanie wiadomości. Lokalna skrzynka testowa nie jest usługą wysyłkową.
-6. Uruchom ponownie `npm run dev` i otwórz `/app`.
+1. Create a Supabase project and copy `.env.example` to `.env.local`.
+2. Enter the URL and publishable key from the Connect panel. A legacy anon key also works. **Never use a service_role or secret key.**
+3. In Auth, set Site URL to the application URL. Add `/auth/callback` to Redirect URLs with its parameters: `/auth/callback?next=/app` and `/auth/callback?next=/auth/update-password`. For local development, use `http://localhost:3000` and the equivalent callback URLs.
+4. Enable email confirmation. Copy `supabase/templates/confirmation.html` and `recovery.html` into the Confirm signup and Reset password templates in the Auth panel. Our forms always set RedirectTo with a next parameter. Do not use these templates in other clients without that parameter.
+5. Connect your own SMTP service before sharing the application with users, and verify email delivery. The local test mailbox is not an email delivery service.
+6. Restart `npm run dev` and open `/app`.
 
-Po zalogowaniu użytkownik widzi przykładowy dashboard. Własne tabele i RLS dodawaj dopiero przy implementacji funkcji produktu. Przy niepełnej konfiguracji aplikacja pokazuje instrukcję, bez przejścia na demo.
+After signing in, users see the sample dashboard. Add domain tables and RLS when implementing product features. Incomplete configuration shows setup instructions without switching to demo mode.
 
-## Lokalne testy integracyjne
+## Local integration tests
 
-Potrzebny jest działający Docker. CLI Supabase jest zależnością developerską projektu:
+Docker must be running. The Supabase CLI is a development dependency:
 
 ```sh
 npm run db:start
@@ -24,14 +24,14 @@ npm run test:integration
 npm run db:stop
 ```
 
-Pierwszy start pobiera obrazy. Używane porty: 54321 API, 54322 baza, 54323 Studio, 54324 testowa skrzynka Mailpit, 3107 aplikacja testowa. Nie uruchamiaj równolegle testów demo i integracji — oba przebudowują `.next`.
+The first start downloads images. Ports: 54321 for the API, 54322 for the database, 54323 for Studio, 54324 for the Mailpit test mailbox, and 3107 for the test application. Do not run demo and integration tests in parallel: both rebuild `.next`.
 
-Skrypt integracyjny pobiera publiczny klucz z lokalnego CLI, odrzuca zdalne adresy i buduje aplikację ze wskazaniem na lokalny stack. Nie zapisuje kluczy do repo. Testuje rejestrację, potwierdzenie emaila, dostęp do aplikacji, wylogowanie, logowanie, odzyskiwanie hasła i niezależność sesji dwóch kont. Maile trafiają wyłącznie do lokalnej skrzynki.
+The integration script reads the public key from the local CLI, rejects remote URLs, and builds the application against the local stack. It does not save keys to the repository. Tests cover sign-up, email confirmation, application access, sign-out, sign-in, password recovery, and independent sessions for two accounts. Emails go only to the local mailbox.
 
-`npm run db:reset` usuwa **lokalne** dane i odtwarza migracje. Nie używaj go do zwykłego startu; testy tworzą unikalne konta. Po integracji `npm run test:e2e` przebuduje aplikację w trybie bez konfiguracji. Lokalne limity wysyłki podniesiono wyłącznie na potrzeby testów.
+`npm run db:reset` deletes **local** data and reapplies migrations. Do not use it for a normal start; tests create unique accounts. After integration tests, `npm run test:e2e` rebuilds the application without Supabase configuration. Local email rate limits are increased only for tests.
 
-Callback obsługuje PKCE code oraz token_hash. Akceptowane cele przekierowania to tylko `/app` i `/auth/update-password`; link wygasły lub niepoprawny prowadzi do komunikatu na ekranie logowania.
+The callback supports PKCE code and token_hash. Only `/app` and `/auth/update-password` are accepted redirect targets. Expired or invalid links lead to an error message on the sign-in screen.
 
-## Własne tabele
+## Domain tables
 
-Dodając funkcję wymagającą bazy, zapisz jej schemat i RLS jako nową migrację. Przed wdrożeniem sprawdź `npx supabase db push --dry-run` dla właściwego projektu. Testuj RLS na dwóch kontach w lokalnym stacku. Starter nie usuwa tabel ze wcześniej skonfigurowanych baz.
+When adding a feature that needs a database, save its schema and RLS as a new migration. Before deployment, check `npx supabase db push --dry-run` for the correct project. Test RLS with two accounts in the local stack. The starter does not delete tables from previously configured databases.

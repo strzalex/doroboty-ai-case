@@ -1,2 +1,2 @@
--- Starter nie zawiera tabel ani danych domenowych.
--- Testy auth tworzą własne konta w lokalnym Supabase.
+-- The starter contains no domain tables or data.
+-- Auth tests create their own accounts in local Supabase.

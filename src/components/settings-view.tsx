@@ -10,27 +10,27 @@ export function SettingsView({ mode }: { mode: "demo" | "live" }) {
     <>
       <div className="page-heading">
         <div>
-          <h1>Ustawienia</h1>
-          <p>Dostosuj wygląd aplikacji.</p>
+          <h1>Settings</h1>
+          <p>Customize the appearance of your application.</p>
         </div>
       </div>
       <section className="settings-section">
         <div>
-          <h2>Wygląd</h2>
-          <p>Wybór motywu zostanie zapisany w tej przeglądarce.</p>
+          <h2>Appearance</h2>
+          <p>Your theme preference is saved in this browser.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {[
-            { key: "light", label: "Jasny", icon: Sun },
-            { key: "dark", label: "Ciemny", icon: Moon },
-            { key: "system", label: "Systemowy", icon: Monitor },
+            { key: "light", label: "Light", icon: Sun },
+            { key: "dark", label: "Dark", icon: Moon },
+            { key: "system", label: "System", icon: Monitor },
           ].map(({ key, label, icon: Icon }) => (
             <Button
               key={key}
               variant="outline"
               onClick={() => {
                 setTheme(key);
-                setMessage(`Motyw: ${label.toLowerCase()}.`);
+                setMessage(`Theme: ${label.toLowerCase()}.`);
               }}
             >
               <Icon />
@@ -41,11 +41,11 @@ export function SettingsView({ mode }: { mode: "demo" | "live" }) {
       </section>
       <section className="settings-section">
         <div>
-          <h2>Przykładowe dane</h2>
+          <h2>Sample data</h2>
           <p>
             {mode === "demo"
-              ? "Demo pokazuje statyczne dane. Filtry i zaznaczenie znikają po odświeżeniu strony."
-              : "Ten widok pokazuje statyczne dane przykładowe. Supabase obsługuje konta i logowanie."}
+              ? "The demo uses static data. Filters and selection reset when you reload the page."
+              : "This page uses static sample data. Supabase handles accounts and sign-in."}
           </p>
         </div>
       </section>

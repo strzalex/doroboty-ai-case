@@ -12,30 +12,30 @@ import { Label } from "@/components/ui/label";
 export type AuthMode = "sign-in" | "sign-up" | "forgot-password" | "update-password";
 const copy = {
   "sign-in": {
-    title: "Witaj ponownie.",
-    description: "Zaloguj się do swojej aplikacji.",
-    action: "Zaloguj się",
+    title: "Welcome back.",
+    description: "Sign in to your application.",
+    action: "Sign in",
   },
   "sign-up": {
-    title: "Zacznij od pomysłu.",
-    description: "Załóż konto, żeby przejść do aplikacji.",
-    action: "Utwórz konto",
+    title: "Start with an idea.",
+    description: "Create an account to access the application.",
+    action: "Create account",
   },
   "forgot-password": {
-    title: "Nowy dostęp.",
-    description: "Wyślemy Ci link do ustawienia nowego hasła.",
-    action: "Wyślij link",
+    title: "Recover access.",
+    description: "We will send you a link to set a new password.",
+    action: "Send link",
   },
   "update-password": {
-    title: "Ustaw nowe hasło.",
-    description: "Wybierz hasło zawierające co najmniej 8 znaków.",
-    action: "Zapisz hasło",
+    title: "Set a new password.",
+    description: "Choose a password with at least 8 characters.",
+    action: "Save password",
   },
 };
 export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkError?: boolean }) {
   const [message, setMessage] = useState("");
   const schema = z.object({
-    email: mode === "update-password" ? z.string() : z.email("Podaj poprawny adres email."),
+    email: mode === "update-password" ? z.string() : z.email("Enter a valid email address."),
     password:
       mode === "forgot-password"
         ? z.string()
@@ -43,7 +43,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
             .string()
             .min(
               mode === "sign-in" ? 1 : 8,
-              "Podaj hasło — co najmniej 8 znaków dla nowego konta.",
+              "Enter a password — at least 8 characters for a new account.",
             ),
   });
   const {
@@ -74,7 +74,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
         });
         if (error) throw error;
         setMessage(
-          "Sprawdź skrzynkę email. Jeśli rejestracja wymaga potwierdzenia, znajdziesz tam link aktywacyjny. Po potwierdzeniu możesz się zalogować.",
+          "Check your inbox. If sign-up requires confirmation, you will find an activation link there. You can sign in after confirming your email.",
         );
       }
       if (mode === "forgot-password") {
@@ -83,7 +83,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
         });
         if (error) throw error;
         setMessage(
-          "Jeśli konto istnieje, wyślemy wiadomość z linkiem do zmiany hasła. Sprawdź też folder spam.",
+          "If the account exists, we will send an email with a password reset link. Check your spam folder too.",
         );
       }
       if (mode === "update-password") {
@@ -96,8 +96,8 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
       setError("root", {
         message:
           mode === "sign-in"
-            ? "Nie udało się zalogować. Sprawdź email, hasło i potwierdzenie adresu."
-            : "Nie udało się wykonać operacji. Sprawdź połączenie i spróbuj ponownie za chwilę.",
+            ? "Unable to sign in. Check your email, password, and email confirmation."
+            : "Unable to complete this action. Check your connection and try again shortly.",
       });
     }
   }
@@ -112,32 +112,31 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
         </Link>
         <div>
           <h2>
-            Pomysł to
-            <br />
-            dobry początek.
+            An idea is
+            <br />a good start.
           </h2>
-          <p>Zrób miejsce na to, co chcesz zbudować.</p>
+          <p>Make room for what you want to build.</p>
         </div>
-        <span>Twoja przestrzeń do tworzenia.</span>
+        <span>Your space to create.</span>
       </div>
       <div className="auth-content">
         <Link href="/demo" className="text-link">
           <ArrowLeft size={16} />
-          Wróć do demo
+          Back to demo
         </Link>
         <div className="auth-form">
           <h1>{copy[mode].title}</h1>
           <p className="lede">{copy[mode].description}</p>
           {linkError && (
             <p role="alert" className="error-message mb-6">
-              Link jest nieprawidłowy lub wygasł. Poproś o nowy link albo zaloguj się.
+              This link is invalid or has expired. Request a new link or sign in.
             </p>
           )}
           {message ? (
             <div role="status" className="success-panel">
               <p>{message}</p>
               <Link className="text-link mt-5" href="/auth/sign-in">
-                Przejdź do logowania <ArrowRight size={16} />
+                Go to sign-in <ArrowRight size={16} />
               </Link>
             </div>
           ) : (
@@ -149,7 +148,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="ty@przyklad.pl"
+                    placeholder="you@example.com"
                     aria-invalid={!!errors.email}
                     aria-describedby={errors.email ? "email-error" : undefined}
                     {...register("email")}
@@ -163,7 +162,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
               )}
               {mode !== "forgot-password" && (
                 <div className="field">
-                  <Label htmlFor="password">Hasło</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -185,7 +184,7 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
                 </p>
               )}
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Chwileczkę…" : copy[mode].action}
+                {isSubmitting ? "Please wait…" : copy[mode].action}
                 <ArrowRight size={16} />
               </Button>
             </form>
@@ -193,11 +192,11 @@ export function AuthForm({ mode, linkError = false }: { mode: AuthMode; linkErro
           <div className="auth-links">
             {mode === "sign-in" ? (
               <>
-                <Link href="/auth/forgot-password">Nie pamiętam hasła</Link>
-                <Link href="/auth/sign-up">Utwórz konto</Link>
+                <Link href="/auth/forgot-password">Forgot password</Link>
+                <Link href="/auth/sign-up">Create account</Link>
               </>
             ) : (
-              <Link href="/auth/sign-in">Mam już konto</Link>
+              <Link href="/auth/sign-in">I already have an account</Link>
             )}
           </div>
         </div>

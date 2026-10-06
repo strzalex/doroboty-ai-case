@@ -1,36 +1,36 @@
 # Superstarter
 
-![Superstarter — rakieta w hangarze konstrukcyjnym](docs/assets/superstarter-cover.png)
+![Superstarter — a rocket in a construction hangar](docs/assets/superstarter-cover.png)
 
-Starter aplikacji do pracy z Codex: Next.js, shadcn/ui na Base UI, Supabase Auth i automatyczne sprawdzanie jakości.
+An application starter for working with Codex: Next.js, shadcn/ui on Base UI, Supabase Auth, and automated quality checks.
 
-## Uruchomienie
+## Getting started
 
-Node.js 24 i npm:
+Node.js 24 and npm:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Otwórz [localhost:3000/demo](http://localhost:3000/demo). Demo działa bez sekretów, Supabase i Dockera. Pokazuje dashboard z kartami, wykresem i prostą tabelą dokumentów, inspirowany [dashboard-01 shadcn/ui](https://ui.shadcn.com/blocks). Dane są statyczne; filtry, zaznaczenie i paginacja działają w pamięci strony.
+Open [localhost:3000/demo](http://localhost:3000/demo). The demo runs without secrets, Supabase, or Docker. It includes a dashboard with metric cards, a chart, and a document table, inspired by [shadcn/ui dashboard-01](https://ui.shadcn.com/blocks). Data is static; filters, selection, and pagination use in-memory page state.
 
-## Co zawiera starter
+## What's included
 
-- Next.js App Router, React, TypeScript i npm z `package-lock.json`.
-- shadcn/ui na Base UI w presecie b0: Nova, Neutral, lokalny Inter i Lucide; Tailwind CSS.
-- Jasny, ciemny i systemowy motyw, responsywną nawigację oraz galerię `/components` z formularzem React Hook Form i Zod.
-- Oddzielną aplikację `/app` z Supabase Auth: rejestrację, potwierdzenie emaila, logowanie, reset hasła i wylogowanie.
-- Vitest, Playwright i konfigurację GitHub Actions.
+- Next.js App Router, React, TypeScript, and npm with `package-lock.json`.
+- shadcn/ui on Base UI with the b0 preset: Nova, Neutral, local Inter, and Lucide; Tailwind CSS.
+- Light, dark, and system themes, responsive navigation, and a `/components` gallery with a React Hook Form and Zod example.
+- A separate `/app` with Supabase Auth: sign-up, email confirmation, sign-in, password recovery, and sign-out.
+- Vitest, Playwright, and GitHub Actions configuration.
 
-Starter nie zawiera tabel domenowych, migracji projektów ani CRUD. `/app` pokazuje ten sam przykładowy dashboard po zalogowaniu; dane demo nie trafiają do Supabase. Brak lub awaria konfiguracji nie przełącza aplikacji na demo.
+The starter does not include domain tables, project migrations, or CRUD. After sign-in, `/app` shows the same sample dashboard; demo data is never sent to Supabase. Missing or failed configuration never switches the application to demo mode.
 
-## Praca nad kodem
+## Development
 
-Funkcje są w `src/features`, współdzielone komponenty w `src/components`, a tokeny w `tokens.css`. Komunikaty i dokumentacja są po polsku; identyfikatory kodu po angielsku. Zasady rozbudowy opisuje `AGENTS.md`.
+Features live in `src/features`, shared components in `src/components`, and tokens in `tokens.css`. All repository content, UI text, documentation, comments, and commit messages must be in English. See `AGENTS.md` for development rules.
 
-`npm run format` formatuje kod. `npm run check` sprawdza format, lint, typy, testy jednostkowe, build produkcyjny i E2E demo. Integracja auth wymaga lokalnego Supabase w Dockerze. Po publikacji repozytorium skonfiguruj wymagane kontrole CI i hosting.
+`npm run format` formats the code. `npm run check` verifies formatting, lint, types, unit tests, the production build, and demo E2E tests. Auth integration tests require local Supabase running in Docker. After publishing the repository, configure required CI checks and hosting.
 
-- [Konfiguracja Supabase i testy auth](docs/supabase.md)
-- [Wdrożenie na Vercel](docs/deployment.md)
-- [Architektura i dodawanie funkcji](docs/architecture.md)
+- [Supabase setup and auth tests](docs/supabase.md)
+- [Deployment on Vercel](docs/deployment.md)
+- [Architecture and adding features](docs/architecture.md)

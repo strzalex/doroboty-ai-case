@@ -1,29 +1,29 @@
-# Praca nad Superstarterem
+# Working on Superstarter
 
-## Standardy
+## Standards
 
-- Pisz komunikaty i dokumentację po polsku, identyfikatory kodu po angielsku.
-- npm i Node 24; utrzymuj package-lock.json. Nie dodawaj drugiego menedżera pakietów.
-- Korzystaj z istniejących shadcn/ui (Base UI), tokenów i wzorca formularzy. Aktualne komponenty używają `render`, nie radixowego `asChild`.
-- Nowe funkcje umieszczaj w src/features; strony składają funkcje, a src/components/ui przechowuje współdzielone prymitywy.
-- Biblioteki serwerowe oznaczaj `server-only`. Każda mutacja weryfikuje sesję i dane przez Zod. Nie polegaj wyłącznie na layoutach do autoryzacji.
-- Schematy wejściowe współdziel między formularzem i serwerem.
-- Demo ma być uruchamialne bez sekretów, usług i Dockera. Awaria Supabase nigdy nie przełącza prawdziwej aplikacji na demo.
-- Demo pokazuje statyczne dane. Nie dodawaj do niego tabel domenowych, migracji ani zapisu do localStorage.
-- Zmiany bazy zapisuj jako nowe migracje. Testuj RLS na dwóch kontach; nigdy nie używaj service_role do normalnych operacji użytkownika.
-- Nie loguj tokenów, haseł, ciasteczek ani danych użytkowników. NEXT_PUBLIC oznacza dane dostępne w przeglądarce.
+- Write all repository content, UI text, documentation, comments, code identifiers, and commit messages in English.
+- Use npm and Node 24; maintain package-lock.json. Do not add a second package manager.
+- Use the existing shadcn/ui (Base UI) components, tokens, and form pattern. Current components use `render`, not Radix's `asChild`.
+- Place new features in src/features; pages compose features, and src/components/ui holds shared primitives.
+- Mark server libraries `server-only`. Every mutation must verify the session and validate input with Zod. Do not rely on layouts alone for authorization.
+- Share input schemas between forms and the server.
+- The demo must run without secrets, services, or Docker. A Supabase failure must never switch the real application to demo mode.
+- The demo uses static data. Do not add domain tables, migrations, or localStorage data persistence to it.
+- Save database changes as new migrations. Test RLS with two accounts; never use service_role for normal user operations.
+- Do not log tokens, passwords, cookies, or user data. NEXT_PUBLIC values are available in the browser.
 
-## Sprawdzanie
+## Validation
 
-- `npm run format` formatuje, `npm run check` weryfikuje format, lint, typy, testy, build i E2E demo.
-- Po zmianie auth/bazy: Docker, `npm run db:start`, `npm run test:integration`, `npm run db:stop`.
-- Integracja korzysta wyłącznie z lokalnego Supabase. Nigdy nie resetuj chmurowej bazy, by uruchomić test.
-- Sprawdzaj UI na telefonie i komputerze, stany błędów oraz klawiaturę. Preferuj testy zachowania zamiast testów kopiujących implementację.
-- Raportuj, co faktycznie sprawdzono. Zielony lokalny build nie oznacza działającego CI ani wdrożenia.
+- `npm run format` formats the code; `npm run check` verifies formatting, lint, types, tests, the build, and demo E2E tests.
+- After auth or database changes: start Docker, run `npm run db:start`, `npm run test:integration`, and `npm run db:stop`.
+- Integration tests use only local Supabase. Never reset a cloud database to run a test.
+- Check the UI on mobile and desktop, including error states and keyboard support. Prefer behavior tests over tests that mirror the implementation.
+- Report what was actually verified. A passing local build does not prove that CI or deployment works.
 
-## Rozbudowa
+## Extending the starter
 
-Najpierw ustal oczekiwane zachowanie, potem dodaj schemat, dane, interfejs i odpowiednie testy. Instrukcje architektury są w docs/architecture.md. Zachowuj README krótkie; szczegóły usług opisuj w docs.
+Define the expected behavior first, then add the schema, data, interface, and appropriate tests. Architecture instructions are in docs/architecture.md. Keep README short; document service details in docs.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -30,9 +30,9 @@ export function AppShell({
   const [error, setError] = useState("");
   const base = mode === "demo" ? "/demo" : "/app";
   const links = [
-    { href: base, label: "Przegląd", icon: LayoutDashboard },
-    { href: `${base}/settings`, label: "Ustawienia", icon: Settings2 },
-    { href: "/components", label: "Komponenty", icon: Blocks },
+    { href: base, label: "Overview", icon: LayoutDashboard },
+    { href: `${base}/settings`, label: "Settings", icon: Settings2 },
+    { href: "/components", label: "Components", icon: Blocks },
   ];
   async function logout() {
     setBusy(true);
@@ -43,14 +43,14 @@ export function AppShell({
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Clear the auth-bound router cache after changing session cookies.
       window.location.assign("/auth/sign-in");
     } catch {
-      setError("Nie udało się wylogować. Spróbuj ponownie.");
+      setError("Unable to sign out. Try again.");
       setBusy(false);
     }
   }
   return (
     <div className="app-frame">
       <a className="skip-link" href="#main">
-        Przejdź do treści
+        Skip to content
       </a>
       <header className="mobile-header">
         <Link href={base} className="brand">
@@ -62,7 +62,7 @@ export function AppShell({
         <Button
           variant="ghost"
           size="icon"
-          aria-label={open ? "Zamknij menu" : "Otwórz menu"}
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="sidebar"
           onClick={() => setOpen(!open)}
@@ -80,11 +80,11 @@ export function AppShell({
         <div className="workspace-label">
           <span className="workspace-avatar">S</span>
           <div>
-            <strong>Moja przestrzeń</strong>
-            <span>{mode === "demo" ? "Wersja demonstracyjna" : "Twoje konto"}</span>
+            <strong>My workspace</strong>
+            <span>{mode === "demo" ? "Demo version" : "Your account"}</span>
           </div>
         </div>
-        <nav aria-label="Nawigacja główna">
+        <nav aria-label="Main navigation">
           {links.map(({ href, label, icon: Icon }) => {
             const active = href === base ? pathname === base : pathname === href;
             return (
@@ -104,10 +104,10 @@ export function AppShell({
         <div className="sidebar-bottom">
           {mode === "demo" ? (
             <>
-              <p>Masz już swój pomysł?</p>
-              <span>Podłącz bazę i zacznij budować własną aplikację.</span>
+              <p>Have an idea?</p>
+              <span>Connect a database and start building your application.</span>
               <Link href="/app" className="nav-link">
-                Przejdź do aplikacji <ArrowUpRight size={16} />
+                Open application <ArrowUpRight size={16} />
               </Link>
             </>
           ) : (
@@ -115,7 +115,7 @@ export function AppShell({
               <p className="break-all">{email}</p>
               <Button variant="ghost" onClick={logout} disabled={busy}>
                 <LogOut />
-                {busy ? "Wylogowywanie…" : "Wyloguj się"}
+                {busy ? "Signing out…" : "Sign out"}
               </Button>
               {error && <p role="alert">{error}</p>}
             </>
@@ -128,25 +128,25 @@ export function AppShell({
       <div className="workspace">
         <div className="topbar">
           <span>
-            Moja przestrzeń <span className="px-3 text-border">/</span>{" "}
+            My workspace <span className="px-3 text-border">/</span>{" "}
             {pathname.includes("settings")
-              ? "Ustawienia"
+              ? "Settings"
               : pathname === "/components"
-                ? "Komponenty"
-                : "Dokumenty"}
+                ? "Components"
+                : "Documents"}
           </span>
           <span className="mode-label">
             <span className="status-dot" />
-            {mode === "demo" ? "Tryb demo" : "Supabase"}
+            {mode === "demo" ? "Demo mode" : "Supabase"}
           </span>
         </div>
         <main id="main" className="main-content">
           {children}
         </main>
         <footer className="app-footer">
-          <span>Twój pomysł. Twój następny krok.</span>
+          <span>Your idea. Your next step.</span>
           <Link href="/components">
-            Poznaj komponenty <ArrowUpRight size={13} />
+            Explore components <ArrowUpRight size={13} />
           </Link>
         </footer>
       </div>

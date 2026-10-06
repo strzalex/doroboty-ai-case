@@ -33,10 +33,10 @@ enable_confirmations = true
 double_confirm_changes = true
 max_frequency = "1s"
 [auth.email.template.confirmation]
-subject = "Potwierdź konto Superstarter"
+subject = "Confirm your Superstarter account"
 content_path = "./supabase/templates/confirmation.html"
 [auth.email.template.recovery]
-subject = "Zmień hasło Superstarter"
+subject = "Reset your Superstarter password"
 content_path = "./supabase/templates/recovery.html"
 [auth.rate_limit]
 email_sent = 100

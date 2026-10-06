@@ -2,10 +2,10 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <main className="standalone">
-      <h1>Nie ma takiej strony.</h1>
-      <p className="lede">Sprawdź adres lub wróć do przeglądu.</p>
+      <h1>Page not found.</h1>
+      <p className="lede">Check the URL or return to the dashboard.</p>
       <Link className="text-link" href="/demo">
-        Otwórz demo
+        Open demo
       </Link>
     </main>
   );

@@ -31,6 +31,6 @@ export function getSupabaseConfig() {
 export function requireSupabaseConfig() {
   const config = getSupabaseConfig();
   if (!config.configured)
-    throw new Error("Skonfiguruj poprawnie Supabase w .env.local. Demo pozostaje dostępne.");
+    throw new Error("Configure Supabase correctly in .env.local. The demo remains available.");
   return config;
 }

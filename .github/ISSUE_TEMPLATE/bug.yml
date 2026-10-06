@@ -1,21 +1,21 @@
-name: Błąd
-description: Opisz problem, który da się odtworzyć.
+name: Bug
+description: Describe a reproducible problem.
 body:
   - type: textarea
     id: steps
     attributes:
-      label: Kroki odtworzenia
-      description: Podaj widok, wykonane czynności i tryb — demo lub Supabase.
+      label: Steps to reproduce
+      description: Include the page, actions, and mode — demo or Supabase.
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Oczekiwany i rzeczywisty rezultat
+      label: Expected and actual results
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
-      label: Środowisko
-      description: System, przeglądarka, wersja Node. Nie dołączaj sekretów ani danych użytkowników.
+      label: Environment
+      description: Operating system, browser, and Node version. Do not include secrets or user data.

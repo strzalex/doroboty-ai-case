@@ -1,28 +1,28 @@
-# Publikacja i utrzymanie
+# Deployment and maintenance
 
-Repozytorium zawiera konfigurację, ale nie tworzy automatycznie kont, projektu Vercel ani zdalnej bazy.
+The repository contains configuration, but does not automatically create accounts, a Vercel project, or a remote database.
 
 ## GitHub
 
-Opublikuj repo i ustaw `main` jako gałąź domyślną. Po pierwszym przebiegu CI włącz ruleset wymagający pull requesta oraz kontroli **Quality and demo** i **Supabase integration**. Dostępność reguł zależy od planu i widoczności repo. Nie traktuj samego pliku YAML jako ochrony gałęzi.
+Publish the repository and set `main` as the default branch. After the first CI run, enable a ruleset requiring a pull request and the **Quality and demo** and **Supabase integration** checks. Rule availability depends on your plan and repository visibility. A workflow YAML file alone does not protect a branch.
 
-CI działa bez sekretów produkcyjnych, z minimalnym uprawnieniem `contents: read`. Drugi job uruchamia własny Supabase na runnerze. Raporty i ślady Playwright są dostępne w artefaktach przez 7 dni. Aktualizacje zależności wykonujemy ręcznie; automatyczne PR-y Dependabota są wyłączone.
+CI runs without production secrets and uses the minimum `contents: read` permission. The second job runs its own Supabase instance on the runner. Playwright reports and traces are available as artifacts for 7 days. Dependencies are updated manually; automated Dependabot pull requests are disabled.
 
 ## Vercel
 
-1. Zaimportuj repo do Vercel, wybierz Next.js, Node 24, komendę build `npm run build` i instalację `npm ci`.
-2. Dla pierwszego wdrożenia demo pozostaw zmienne Supabase puste. Build musi działać bez nich.
-3. Dla produkcji ustaw `NEXT_PUBLIC_SUPABASE_URL` i `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Skonfiguruj auth zgodnie z [instrukcją Supabase](supabase.md).
-4. Dla Preview użyj **oddzielnego projektu Supabase** i osobnych zmiennych. Możesz również pozostawić preview jako demo. Nie kopiuj produkcyjnej bazy lub sekretów do PR-ów.
-5. Skonfiguruj adresy callback osobno dla środowisk. Publiczne zmienne Next są wbudowywane podczas buildu — ich zmiana wymaga nowego wdrożenia.
-6. Integracja Vercel tworzy preview dla PR. Produkcję publikuj po merge do chronionego `main` z zielonym CI. Ochrona gałęzi z poprzedniej sekcji jest częścią tej konfiguracji.
+1. Import the repository into Vercel. Select Next.js, Node 24, `npm run build` as the build command, and `npm ci` as the install command.
+2. For the initial demo deployment, leave Supabase variables empty. The build must work without them.
+3. For production, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Configure auth using the [Supabase instructions](supabase.md).
+4. For Preview, use a **separate Supabase project** and separate variables. You can also keep previews in demo mode. Do not copy production databases or secrets into pull requests.
+5. Configure callback URLs separately for each environment. Next.js public variables are embedded at build time; changing them requires a new deployment.
+6. The Vercel integration creates a preview for each pull request. Deploy production after merging into a protected `main` with passing CI. The branch protection described above is part of this setup.
 
-## Sprawdzenie wdrożenia
+## Verifying a deployment
 
-Otwórz demo, sprawdź widok mobilny, następnie załóż konto testowe, potwierdź email, sprawdź dostęp do dashboardu po ponownym logowaniu. Przejdź reset hasła na docelowej domenie. Sprawdź logi Vercel i dostarczanie wiadomości SMTP. Nie zapisuj haseł ani tokenów w logach.
+Open the demo and check the mobile layout. Create a test account, confirm its email, and verify dashboard access after signing in again. Complete password recovery on the target domain. Check Vercel logs and SMTP delivery. Do not log passwords or tokens.
 
-Starter nie zawiera monitoringu zewnętrznego ani gwarancji backupu. Przed gromadzeniem ważnych danych skonfiguruj kopie bazy według wybranego planu Supabase i sprawdź procedurę odtworzenia.
+The starter does not include external monitoring or a backup guarantee. Before collecting important data, configure database backups for your Supabase plan and verify the recovery procedure.
 
-## Powrót do wcześniejszej wersji
+## Rollback
 
-W Vercel przywróć poprzednie działające wdrożenie, a w GitHub przygotuj revert błędnej zmiany. **Rollback kodu nie cofa migracji ani danych.** Migracje wdrażaj kompatybilnie ze starą i nową wersją; destrukcyjne zmiany wymagają kopii danych i osobnego planu. Nie uruchamiaj `db reset` na produkcji.
+In Vercel, restore the previous working deployment. In GitHub, prepare a revert of the faulty change. **Rolling back code does not roll back migrations or data.** Keep migrations compatible with both old and new versions; destructive changes require a data backup and a separate plan. Never run `db reset` in production.
