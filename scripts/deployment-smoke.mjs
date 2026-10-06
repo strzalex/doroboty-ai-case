@@ -9,8 +9,8 @@ const routes = [
   { path: "/oferty", contains: "DoRoboty.ai" },
   { path: "/oferty/ai-product-manager", contains: "DoRoboty.ai" },
   { path: "/auth/sign-in", contains: "DoRoboty.ai" },
-  { path: "/robots.txt", contains: "Sitemap:" },
-  { path: "/sitemap.xml", contains: "<urlset" },
+  { path: "/robots.txt", contains: `${origin.origin}/sitemap.xml` },
+  { path: "/sitemap.xml", contains: `${origin.origin}/oferty` },
 ];
 
 for (const route of routes) {
