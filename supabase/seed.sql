@@ -1,0 +1,2 @@
+-- Starter nie zawiera tabel ani danych domenowych.
+-- Testy auth tworzą własne konta w lokalnym Supabase.

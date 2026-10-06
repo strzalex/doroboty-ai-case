@@ -1,0 +1,10 @@
+{
+  "initialState": "empty project",
+  "framework": "Next.js App Router",
+  "genre": "modern-minimal",
+  "theme": "Neutral",
+  "fonts": ["Inter"],
+  "motion": "minimal",
+  "spacing": "4pt",
+  "preset": "b0"
+}

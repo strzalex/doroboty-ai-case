@@ -1,0 +1,21 @@
+name: Błąd
+description: Opisz problem, który da się odtworzyć.
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki odtworzenia
+      description: Podaj widok, wykonane czynności i tryb — demo lub Supabase.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Oczekiwany i rzeczywisty rezultat
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Środowisko
+      description: System, przeglądarka, wersja Node. Nie dołączaj sekretów ani danych użytkowników.
