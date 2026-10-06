@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import AxeBuilder from "@axe-core/playwright";
 const api = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 const mail = process.env.LOCAL_MAIL_URL ?? "http://127.0.0.1:54324";
@@ -57,6 +58,15 @@ async function confirmedAccount(prefix = "account") {
   });
   expect(confirmation.error).toBeNull();
   return { client, id: confirmation.data.user!.id };
+}
+
+async function fixtureClient(email: string) {
+  const client = createClient(api, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const result = await client.auth.signInWithPassword({ email, password: localCasePassword });
+  expect(result.error).toBeNull();
+  return client;
 }
 test("sign-up, email confirmation, dashboard, sign-in, and password recovery", async ({ page }) => {
   const email = `browser-${crypto.randomUUID()}@example.test`;
@@ -164,6 +174,114 @@ test("application submission is atomic, idempotent, and private", async () => {
   expect(scores.data).toHaveLength(1);
 });
 
+test("candidate, organization, operator, anonymous, and signed-out boundaries hold", async () => {
+  const candidate = await confirmedAccount("boundaries");
+  const employer = await fixtureClient("employer@doroboty.local");
+  const otherEmployer = await fixtureClient("employer-other@doroboty.local");
+  const operator = await fixtureClient("operator@doroboty.local");
+  const anonymous = createClient(api, key, { auth: { persistSession: false } });
+  const input = {
+    target_job_id: "20000000-0000-4000-8000-000000000001",
+    target_variant: "long_form",
+    final_answer:
+      "Zbadałem proces operacyjny, sprawdziłem hipotezę z użytkownikami i zmierzyłem efekt wdrożenia.",
+    target_generation_id: null,
+    source_snapshot: { fixture: "role-boundaries" },
+    source_evidence_ids: [],
+    fit_version: "text-v1",
+    fit_components: { overlap: 0.4 },
+    fit_score: 0.4,
+  };
+  const submitted = await candidate.client.rpc("submit_application_with_evidence", input);
+  expect(submitted.error).toBeNull();
+  const applicationId = submitted.data as string;
+  for (const [client, visible] of [
+    [candidate.client, true],
+    [employer, true],
+    [otherEmployer, false],
+    [operator, true],
+    [anonymous, false],
+  ] as const) {
+    const result = await client.from("applications").select("id").eq("id", applicationId);
+    expect(result.data ?? []).toHaveLength(visible ? 1 : 0);
+  }
+  const forbiddenStage = await otherEmployer.rpc("record_application_stage", {
+    target_application_id: applicationId,
+    next_stage: "reviewed",
+    event_note: null,
+  });
+  expect(forbiddenStage.error).not.toBeNull();
+  expect(
+    (
+      await employer.rpc("record_application_stage", {
+        target_application_id: applicationId,
+        next_stage: "reviewed",
+        event_note: null,
+      })
+    ).error,
+  ).toBeNull();
+  await candidate.client.auth.signOut();
+  const afterSignOut = await candidate.client
+    .from("applications")
+    .select("id")
+    .eq("id", applicationId);
+  expect(afterSignOut.data ?? []).toHaveLength(0);
+});
+
+test("AI provenance is private, immutable, costed, and role constrained", async () => {
+  const candidate = await confirmedAccount("ai-provenance");
+  const other = await confirmedAccount("ai-provenance");
+  const employer = await fixtureClient("employer@doroboty.local");
+  const row = {
+    purpose: "candidate_answer",
+    requested_by: candidate.id,
+    job_id: "20000000-0000-4000-8000-000000000001",
+    provider: "deterministic",
+    model: "course-fixture-v1",
+    prompt_version: "evidence-first-v1",
+    source_payload: { fixture: true },
+    output_text: "Tekst źródłowy pozostaje oddzielony od tej wygenerowanej wersji odpowiedzi.",
+    latency_ms: 4,
+    input_tokens: 12,
+    output_tokens: 18,
+    estimated_cost_usd: 0.001,
+    status: "succeeded",
+  } as const;
+  const inserted = await candidate.client.from("ai_generations").insert(row).select("id").single();
+  expect(inserted.error).toBeNull();
+  const generationId = inserted.data!.id;
+  expect(
+    (await other.client.from("ai_generations").select("id").eq("id", generationId)).data,
+  ).toHaveLength(0);
+  expect(
+    (await employer.from("ai_generations").select("estimated_cost_usd").eq("id", generationId))
+      .data,
+  ).toHaveLength(1);
+  await candidate.client
+    .from("ai_generations")
+    .update({ output_text: "Niedozwolona zmiana" })
+    .eq("id", generationId);
+  const unchanged = await candidate.client
+    .from("ai_generations")
+    .select("output_text")
+    .eq("id", generationId)
+    .single();
+  expect(unchanged.data?.output_text).toBe(row.output_text);
+  const wrongRole = await candidate.client
+    .from("ai_generations")
+    .insert({ ...row, purpose: "job_draft" });
+  expect(wrongRole.error).not.toBeNull();
+  const forbiddenApproval = await candidate.client.rpc("approve_job_text_version", {
+    target_job_id: row.job_id,
+    target_generation_id: generationId,
+    approved_title: "Nieautoryzowana wersja",
+    approved_summary: "Ten tekst nie powinien zostać zatwierdzony przez kandydata.",
+    approved_description:
+      "Kandydat nie jest członkiem organizacji i nie może zatwierdzić wersji tekstu oferty.",
+  });
+  expect(forbiddenApproval.error).not.toBeNull();
+});
+
 test("anonymous users cannot read employer briefs", async () => {
   const anonymous = createClient(api, key, { auth: { persistSession: false } });
   const briefs = await anonymous.from("employer_briefs").select("id");
@@ -229,6 +347,7 @@ test("candidate application and employer first-conversation decision work end to
   await expect(page.getByRole("status").filter({ hasText: "Doświadczenie dodane." })).toBeVisible();
 
   await page.goto("/aplikuj/ai-product-manager");
+  await expect(page.getByText("Wariant: zapisany profil", { exact: true })).toBeVisible();
   const answer = page.getByLabel("Dlaczego pasujesz do tej roli?");
   if ((await answer.inputValue()).length < 40) {
     await answer.fill(
@@ -253,4 +372,56 @@ test("candidate application and employer first-conversation decision work end to
   await page.getByRole("button", { name: "Rozmowa odbyta" }).click();
   await page.getByRole("button", { name: "Kontynuujemy" }).click();
   await expect(page.getByText("continued", { exact: true })).toBeVisible();
+});
+
+test("long-form application remains a complete browser journey", async ({ page }) => {
+  await page.goto("/auth/sign-in");
+  await page.getByLabel("Email", { exact: true }).fill("candidate-longform@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/aplikuj/staff-ai-engineer");
+  await expect(page.getByText("Wariant: pełna odpowiedź", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Dlaczego pasujesz do tej roli?")).toHaveValue("");
+  await page
+    .getByLabel("Dlaczego pasujesz do tej roli?")
+    .fill("Budowałem ewaluacje systemów AI i wdrożyłem nadzór człowieka w procesie regulowanym.");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Wyślij aplikację" }).click();
+  await expect(page).toHaveURL(/\/app\/aplikacje\?submitted=1/);
+});
+
+test("candidate and employer core flows meet automated WCAG A and AA", async ({ page }) => {
+  await page.goto("/auth/sign-in");
+  await page.getByLabel("Email", { exact: true }).fill("candidate@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/app/profil");
+  expect(
+    (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations,
+  ).toEqual([]);
+  await page.getByRole("button", { name: "Wyloguj się", exact: true }).click();
+  await page.getByLabel("Email", { exact: true }).fill("employer@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/app/kandydaci");
+  expect(
+    (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations,
+  ).toEqual([]);
+});
+
+test("only an operator can inspect and release every case stage", async ({ page }) => {
+  await page.goto("/auth/sign-in");
+  await page.getByLabel("Email", { exact: true }).fill("operator@doroboty.local");
+  await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/app/case?release=post_ai");
+  await expect(page.getByRole("heading", { name: "Case releases" })).toBeVisible();
+  await expect(page.getByText(/Materiał późniejszego etapu/)).toBeVisible();
+  await page.getByLabel("Aktywny etap").selectOption("demo_day");
+  await page.getByRole("button", { name: "Ustaw i ukryj późniejsze etapy" }).click();
+  await expect(page.getByLabel("Aktywny etap")).toHaveValue("demo_day");
 });
