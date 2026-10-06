@@ -49,6 +49,18 @@ const ownProfiles = (await db.query("select id from public.profiles order by id"
 if (ownProfiles.length !== 1 || ownProfiles[0].id !== candidateA) {
   throw new Error("Candidate profile RLS did not restrict reads to the current actor.");
 }
+let roleEscalationRejected = false;
+try {
+  await db.query("update public.profiles set role = 'operator' where id = $1", [candidateA]);
+} catch {
+  roleEscalationRejected = true;
+}
+const candidateRole = (
+  await db.query("select role from public.profiles where id = $1", [candidateA])
+).rows[0]?.role;
+if (!roleEscalationRejected || candidateRole !== "candidate") {
+  throw new Error("Candidate was able to change their controlled profile role.");
+}
 const assignment = (
   await db.query("select (public.assign_experiment('application_flow')).id as id")
 ).rows[0];
@@ -72,7 +84,7 @@ await db.query(`select public.submit_application_with_evidence(
 )`);
 const employerA = "70000000-0000-4000-8000-000000000003";
 const employerB = "70000000-0000-4000-8000-000000000004";
-await db.exec(`reset role;
+await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false);
   insert into auth.users (id, raw_user_meta_data) values
     ('${employerA}', '{"display_name":"Employer A"}'),
     ('${employerB}', '{"display_name":"Employer B"}');

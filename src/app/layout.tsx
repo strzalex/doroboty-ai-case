@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "@fontsource/anton/400.css";
-import "@fontsource-variable/inter";
 import "@fontsource-variable/source-serif-4";
 import "@fontsource/chakra-petch/400.css";
 import "@fontsource/chakra-petch/600.css";

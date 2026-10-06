@@ -13,3 +13,9 @@ Risk is limited to trusted build-time glob patterns in CI/developer tools; those
 ## Release checks
 
 Run production audit, secret scanning, source-map inspection, RLS integration tests, and a clean build. Disable public browser source maps. Confirm Vercel and Supabase logs contain no tokens, prompts, free text, or contact details.
+
+## AI runtime policy
+
+AI calls are server-only, limited to 20 attempts per subject per hour, and time out after 15 seconds. Provider output must be non-empty text no longer than 30,000 characters. Token usage is converted to an estimated cost using deployment-specific per-million-token rates and rejected when it exceeds `AI_MAX_COST_USD_PER_REQUEST`.
+
+The service makes one provider attempt per user action. It does not retry automatically because a timed-out generation may already have incurred cost; the user receives a safe message and can deliberately retry. Structured runtime logs contain only purpose, provider/model identifiers, outcome, latency, token counts, estimated cost, and a normalized error code—never prompts, source evidence, generated text, account identifiers, or raw provider diagnostics.

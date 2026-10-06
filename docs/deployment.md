@@ -16,7 +16,7 @@ CI runs without production secrets and uses the minimum `contents: read` permiss
 4. For Preview, use a **separate Supabase project** and separate variables. You can also keep previews in demo mode. Do not copy production databases or secrets into pull requests.
 5. Configure callback URLs separately for each environment. Set `NEXT_PUBLIC_SITE_URL` to the canonical deployment. Public variables are embedded at build time; changing them requires a new deployment.
 6. To enable product analytics, set `POSTHOG_PROJECT_KEY`, `POSTHOG_HOST=https://eu.i.posthog.com`, and a long random `ANALYTICS_SALT`. Missing analytics configuration is an intentional no-op. Session replay is not installed.
-7. AI defaults to the deterministic course provider. To use an approved provider, set `AI_PROVIDER=openai-compatible`, `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`. Configure spend limits with the provider and verify timeout/quota behavior first.
+7. AI defaults to the deterministic course provider. To use an approved provider, set `AI_PROVIDER=openai-compatible`, `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`. Set the model's current `AI_INPUT_USD_PER_MILLION` and `AI_OUTPUT_USD_PER_MILLION` rates plus `AI_MAX_COST_USD_PER_REQUEST`; also configure a hard spend limit with the provider. Verify timeout, quota, invalid-output, outage, and cost-limit behavior first.
 8. The Vercel integration creates a preview for each pull request. Protect previews containing unlocked case data with Vercel Authentication. Deploy production after merging into a protected `main` with passing CI.
 
 ## Verifying a deployment

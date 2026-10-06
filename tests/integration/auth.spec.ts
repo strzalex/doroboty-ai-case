@@ -244,6 +244,7 @@ test("candidate application and employer first-conversation decision work end to
   await page.getByLabel("Email", { exact: true }).fill("employer@doroboty.local");
   await page.getByLabel("Hasło", { exact: true }).fill(localCasePassword);
   await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(/\/app$/);
   await page.goto("/app/kandydaci");
   await expect(page.getByRole("heading", { name: "Kandydat testowy" })).toBeVisible();
   await page.getByRole("button", { name: "Oznacz jako przejrzaną" }).click();

@@ -33,20 +33,33 @@ try {
   await waitForServer();
   chrome = await launch({
     chromePath: chromium.executablePath(),
-    chromeFlags: ["--headless", "--no-sandbox", "--disable-gpu"],
+    chromeFlags: ["--headless", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
   });
   for (const path of ["/", "/oferty", "/oferty/ai-product-manager"]) {
-    const result = await lighthouse(`${origin}${path}`, {
-      port: chrome.port,
-      output: "json",
-      logLevel: "error",
-      onlyCategories: Object.keys(minimums),
-    });
-    if (!result) throw new Error(`Lighthouse produced no result for ${path}`);
+    const samples = [];
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const result = await lighthouse(`${origin}${path}`, {
+        port: chrome.port,
+        output: "json",
+        logLevel: "error",
+        onlyCategories: Object.keys(minimums),
+      });
+      if (!result) throw new Error(`Lighthouse produced no result for ${path}`);
+      samples.push(
+        Object.fromEntries(
+          Object.keys(minimums).map((key) => [key, result.lhr.categories[key].score ?? 0]),
+        ),
+      );
+    }
     const scores = Object.fromEntries(
-      Object.keys(minimums).map((key) => [key, result.lhr.categories[key].score ?? 0]),
+      Object.keys(minimums).map((key) => [
+        key,
+        samples.map((sample) => sample[key]).sort((left, right) => left - right)[
+          Math.floor(samples.length / 2)
+        ],
+      ]),
     );
-    console.log(path, scores);
+    console.log(path, { median: scores, samples });
     for (const [category, minimum] of Object.entries(minimums)) {
       if (scores[category] < minimum)
         throw new Error(`${path}: ${category} ${scores[category]} is below ${minimum}`);

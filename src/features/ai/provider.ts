@@ -1,6 +1,16 @@
 import "server-only";
 
-import { deterministicText, enforceAiQuota, type AiTextRequest } from "@/features/ai/provider-core";
+import {
+  AI_POLICY,
+  aiAuditEntry,
+  deterministicText,
+  enforceAiCostLimit,
+  enforceAiQuota,
+  estimateAiCostUsd,
+  safeAiErrorCode,
+  type AiTextRequest,
+  validateAiOutput,
+} from "@/features/ai/provider-core";
 
 export type { AiPurpose, AiTextRequest } from "@/features/ai/provider-core";
 
@@ -21,7 +31,7 @@ async function openAiCompatible(request: AiTextRequest): Promise<AiTextResult> {
   const model = process.env.AI_MODEL ?? "gpt-5-mini";
   const baseUrl = process.env.AI_BASE_URL ?? "https://api.openai.com/v1";
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
+  const timeout = setTimeout(() => controller.abort(), AI_POLICY.timeoutMs);
   const started = performance.now();
   try {
     const response = await fetch(`${baseUrl}/chat/completions`, {
@@ -49,16 +59,25 @@ async function openAiCompatible(request: AiTextRequest): Promise<AiTextResult> {
       choices?: { message?: { content?: string } }[];
       usage?: { prompt_tokens?: number; completion_tokens?: number };
     };
-    const text = body.choices?.[0]?.message?.content?.trim();
-    if (!text) throw new Error("AI_PROVIDER_EMPTY_OUTPUT");
+    const text = validateAiOutput(body.choices?.[0]?.message?.content);
+    const inputTokens = body.usage?.prompt_tokens;
+    const outputTokens = body.usage?.completion_tokens;
+    const estimatedCostUsd = estimateAiCostUsd(
+      inputTokens,
+      outputTokens,
+      Number(process.env.AI_INPUT_USD_PER_MILLION ?? 0),
+      Number(process.env.AI_OUTPUT_USD_PER_MILLION ?? 0),
+    );
+    enforceAiCostLimit(estimatedCostUsd, Number(process.env.AI_MAX_COST_USD_PER_REQUEST ?? 0.05));
     return {
       provider: "openai-compatible",
       model,
       promptVersion: "evidence-first-v1",
       text,
       latencyMs: Math.round(performance.now() - started),
-      inputTokens: body.usage?.prompt_tokens,
-      outputTokens: body.usage?.completion_tokens,
+      inputTokens,
+      outputTokens,
+      estimatedCostUsd,
     };
   } finally {
     clearTimeout(timeout);
@@ -67,14 +86,47 @@ async function openAiCompatible(request: AiTextRequest): Promise<AiTextResult> {
 
 export async function generateAiText(request: AiTextRequest): Promise<AiTextResult> {
   enforceAiQuota(request.subjectId);
-  if (process.env.AI_PROVIDER === "openai-compatible") return openAiCompatible(request);
+  const provider =
+    process.env.AI_PROVIDER === "openai-compatible" ? "openai-compatible" : "deterministic";
+  const model =
+    provider === "openai-compatible" ? (process.env.AI_MODEL ?? "gpt-5-mini") : "course-fixture-v1";
   const started = performance.now();
-  const text = deterministicText(request);
-  return {
-    provider: "deterministic",
-    model: "course-fixture-v1",
-    promptVersion: "evidence-first-v1",
-    text,
-    latencyMs: Math.round(performance.now() - started),
-  };
+  try {
+    const result =
+      provider === "openai-compatible"
+        ? await openAiCompatible(request)
+        : {
+            provider,
+            model,
+            promptVersion: "evidence-first-v1",
+            text: validateAiOutput(deterministicText(request)),
+            latencyMs: Math.round(performance.now() - started),
+          };
+    console.info(
+      aiAuditEntry({
+        purpose: request.purpose,
+        provider: result.provider,
+        model: result.model,
+        outcome: "succeeded",
+        latencyMs: result.latencyMs,
+        inputTokens: result.inputTokens,
+        outputTokens: result.outputTokens,
+        estimatedCostUsd: result.estimatedCostUsd,
+      }),
+    );
+    return result;
+  } catch (error) {
+    const errorCode = safeAiErrorCode(error);
+    console.warn(
+      aiAuditEntry({
+        purpose: request.purpose,
+        provider,
+        model,
+        outcome: "failed",
+        latencyMs: Math.round(performance.now() - started),
+        errorCode,
+      }),
+    );
+    throw new Error(errorCode);
+  }
 }
