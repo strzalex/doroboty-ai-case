@@ -394,12 +394,16 @@ test("candidate application and employer first-conversation decision work end to
   await expect(page).toHaveURL(/\/app$/);
   await page.goto("/app/kandydaci");
   await expect(page.getByRole("heading", { name: "Kandydat testowy" })).toBeVisible();
-  await page.getByRole("button", { name: "Oznacz jako przejrzaną" }).click();
-  await expect(page.getByText("in_review", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Zaproś na rozmowę" }).click();
-  await page.getByRole("button", { name: "Rozmowa odbyta" }).click();
-  await page.getByRole("button", { name: "Kontynuujemy" }).click();
-  await expect(page.getByText("continued", { exact: true })).toBeVisible();
+  const application = page
+    .getByRole("article")
+    .filter({ has: page.getByRole("heading", { name: "Kandydat testowy" }) })
+    .filter({ hasText: "AI Product Manager" });
+  await application.getByRole("button", { name: "Oznacz jako przejrzaną" }).click();
+  await expect(application.getByText("in_review", { exact: true })).toBeVisible();
+  await application.getByRole("button", { name: "Zaproś na rozmowę" }).click();
+  await application.getByRole("button", { name: "Rozmowa odbyta" }).click();
+  await application.getByRole("button", { name: "Kontynuujemy" }).click();
+  await expect(application.getByText("continued", { exact: true })).toBeVisible();
 });
 
 test("long-form application remains a complete browser journey", async ({ page }) => {
